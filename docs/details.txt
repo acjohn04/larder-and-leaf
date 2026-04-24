@@ -1,0 +1,2 @@
+Granular Control: Adjusting quantities, expiration dates, and alert settings for individual items.
+Purchase History: Tracking price trends and frequency of purchase for specific goods.

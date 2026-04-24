@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Receipt Scanner | Organic Curator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body {
+            font-family: 'Be+Vietnam+Pro', sans-serif;
+        }
+        h1, h2, h3, h4, .font-headline {
+            font-family: 'Plus+Jakarta+Sans', sans-serif;
+        }
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .receipt-scan-overlay {
+            background: rgba(0, 105, 73, 0.05);
+            border: 2px dashed rgba(0, 105, 73, 0.2);
+        }
+        .ocr-highlight {
+            background: rgba(125, 253, 198, 0.4);
+            border-radius: 2px;
+            position: absolute;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "inverse-on-surface": "#9b9d9d",
+                        "background": "#f6f7f6",
+                        "surface-tint": "#006949",
+                        "error": "#b31b25",
+                        "primary-fixed-dim": "#6eeeb8",
+                        "on-surface": "#2c2f2f",
+                        "on-primary-fixed": "#004b33",
+                        "outline": "#757777",
+                        "on-surface-variant": "#595c5b",
+                        "secondary": "#006b1b",
+                        "on-tertiary-fixed": "#380300",
+                        "primary-container": "#7dfdc6",
+                        "tertiary": "#ad2913",
+                        "surface-container-highest": "#dadddc",
+                        "inverse-primary": "#7dfdc6",
+                        "surface-variant": "#dadddc",
+                        "on-error": "#ffefee",
+                        "surface-container": "#e6e9e8",
+                        "tertiary-fixed": "#ff937e",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffefec",
+                        "secondary-fixed": "#91f78e",
+                        "on-tertiary-fixed-variant": "#760d00",
+                        "secondary-dim": "#005d16",
+                        "error-container": "#fb5151",
+                        "on-secondary-container": "#005e17",
+                        "tertiary-container": "#ff937e",
+                        "primary": "#006949",
+                        "on-background": "#2c2f2f",
+                        "surface-dim": "#d2d5d4",
+                        "on-secondary": "#d1ffc8",
+                        "tertiary-dim": "#9c1c07",
+                        "surface-container-low": "#eff1f0",
+                        "surface-container-high": "#e0e3e2",
+                        "secondary-container": "#91f78e",
+                        "on-primary-fixed-variant": "#006b4b",
+                        "primary-fixed": "#7dfdc6",
+                        "on-secondary-fixed": "#00480f",
+                        "on-tertiary-container": "#660900",
+                        "on-primary-container": "#006042",
+                        "surface": "#f6f7f6",
+                        "inverse-surface": "#0c0f0e",
+                        "surface-bright": "#f6f7f6",
+                        "on-secondary-fixed-variant": "#00691a",
+                        "tertiary-fixed-dim": "#ff7c63",
+                        "primary-dim": "#005b3f",
+                        "error-dim": "#9f0519",
+                        "on-primary": "#c8ffe2",
+                        "outline-variant": "#acadad",
+                        "secondary-fixed-dim": "#83e881",
+                        "on-error-container": "#570008"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Be Vietnam Pro"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body min-h-screen">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-200/20 dark:border-zinc-800/20 shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-6 h-16 max-w-screen-2xl mx-auto">
+<div class="text-xl font-bold tracking-tight text-emerald-900 dark:text-emerald-50 font-headline">Organic Curator</div>
+<div class="hidden md:flex space-x-8 items-center">
+<a class="text-zinc-500 dark:text-zinc-400 font-medium hover:bg-emerald-50/50 transition-colors px-3 py-2 rounded-lg" href="#">Dashboard</a>
+<a class="text-emerald-700 dark:text-emerald-400 font-semibold hover:bg-emerald-50/50 transition-colors px-3 py-2 rounded-lg" href="#">Scanner</a>
+<a class="text-zinc-500 dark:text-zinc-400 font-medium hover:bg-emerald-50/50 transition-colors px-3 py-2 rounded-lg" href="#">Recipes</a>
+</div>
+<div class="flex items-center space-x-4">
+<button class="p-2 rounded-full hover:bg-emerald-50/50 transition-colors">
+<span class="material-symbols-outlined text-zinc-600" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<div class="flex pt-16 min-h-screen">
+<!-- Side Navigation (Web) -->
+<aside class="hidden md:flex flex-col p-4 space-y-2 h-[calc(100vh-64px)] w-64 bg-surface-container-low border-r-0 sticky top-16">
+<div class="px-4 py-6 mb-4">
+<div class="text-lg font-black text-emerald-800 dark:text-emerald-300 font-headline">The Pantry</div>
+<div class="text-xs text-on-surface-variant uppercase tracking-wider font-semibold">Premium Inventory</div>
+</div>
+<a class="flex items-center space-x-3 px-4 py-3 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 hover:translate-x-1 transition-transform cursor-pointer" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 bg-white dark:bg-zinc-800 text-emerald-800 dark:text-emerald-300 rounded-lg shadow-sm cursor-pointer" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-medium">Scanner</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 hover:translate-x-1 transition-transform cursor-pointer" href="#">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-medium">Recipes</span>
+</a>
+<div class="mt-auto pt-4">
+<button class="w-full flex items-center justify-center space-x-2 py-3 bg-gradient-to-br from-primary to-primary-dim text-on-primary rounded-xl font-semibold shadow-lg shadow-primary/10 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span>Add Item</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 p-6 md:p-10 max-w-7xl mx-auto">
+<header class="mb-10">
+<h1 class="text-4xl md:text-5xl font-extrabold text-on-surface tracking-tight mb-2 font-headline">Receipt Scanner</h1>
+<p class="text-on-surface-variant text-lg">Digitize your grocery receipts and instantly update your inventory.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Upload & Preview -->
+<div class="lg:col-span-7 space-y-6">
+<!-- Interactive Upload Area -->
+<div class="group relative bg-surface-container-low rounded-3xl border-2 border-dashed border-outline-variant/30 hover:border-primary/40 transition-all p-12 text-center cursor-pointer">
+<div class="flex flex-col items-center justify-center space-y-4">
+<div class="w-20 h-20 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container mb-2 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-4xl" data-icon="cloud_upload">cloud_upload</span>
+</div>
+<div>
+<h3 class="text-xl font-bold text-on-surface font-headline">Drop receipt here</h3>
+<p class="text-on-surface-variant mt-1">or click to browse from your device</p>
+</div>
+<button class="mt-4 px-6 py-2 bg-surface-container-highest text-on-surface-variant rounded-full text-sm font-semibold hover:bg-surface-container-high transition-colors">Select file</button>
+</div>
+</div>
+<!-- Receipt Preview / Scanning State -->
+<div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-outline-variant/10">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary" data-icon="visibility">visibility</span>
+<h2 class="text-lg font-bold font-headline">Scanned Preview</h2>
+</div>
+<span class="px-3 py-1 bg-primary-container text-on-primary-container text-xs font-bold rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span>
+                                OCR COMPLETE
+                            </span>
+</div>
+<div class="relative overflow-hidden rounded-2xl bg-zinc-100 aspect-[3/4] flex items-center justify-center group">
+<img alt="A long grocery store receipt with items and prices" class="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-105" data-alt="a close-up focused shot of a grocery shopping receipt laying on a clean light wooden surface with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMWKRzLzXPbO2Fep7RbBXbsMMxVa8LYO2YI9QkuTvY0z4ObPrKDuvNAMs51sFMH6rw1DJEoy3W9DUlPKEVjhwcn83_cRJLX_zjN67XcFTZ44R9gDgKYK2F2RezbJyczIt2-zS-7fD4o6ojA6Cu29zGtM411ym3SvCK4m7QPBi1EdJiao_RpD9GVGxlO2RVWczTLHPBpXbYV_NmoBkh09I_XNyiO3C257PsXbCBR9-7TMM9n92Qtwdxb3WRC-mQOgXR84_GcKIgcxE"/>
+<!-- Simulated OCR Overlay -->
+<div class="absolute inset-0 p-8 pointer-events-none">
+<div class="ocr-highlight" style="top: 15%; left: 10%; width: 40%; height: 4%;"></div>
+<div class="ocr-highlight" style="top: 25%; left: 15%; width: 60%; height: 3%;"></div>
+<div class="ocr-highlight" style="top: 30%; left: 15%; width: 55%; height: 3%;"></div>
+<div class="ocr-highlight" style="top: 35%; left: 15%; width: 70%; height: 3%;"></div>
+<div class="ocr-highlight" style="top: 40%; left: 15%; width: 50%; height: 3%;"></div>
+<div class="ocr-highlight" style="top: 75%; left: 10%; width: 30%; height: 5%;"></div>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end p-6">
+<button class="bg-white/90 backdrop-blur-md px-4 py-2 rounded-full text-sm font-bold text-on-surface shadow-lg flex items-center space-x-2">
+<span class="material-symbols-outlined text-sm" data-icon="zoom_in">zoom_in</span>
+<span>Inspect Original</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Identified Items -->
+<div class="lg:col-span-5 flex flex-col h-full">
+<div class="bg-surface-container-low rounded-3xl p-8 sticky top-24 border border-outline-variant/10 h-fit">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h2 class="text-2xl font-bold font-headline">Identified Items</h2>
+<p class="text-sm text-on-surface-variant">Review 6 items found on receipt</p>
+</div>
+<button class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-primary shadow-sm hover:shadow-md transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+<!-- Items List -->
+<div class="space-y-4 mb-10">
+<!-- Item 1 -->
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/5">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-emerald-700" data-icon="eco">eco</span>
+</div>
+<div>
+<div class="font-bold text-on-surface">Organic Spinach</div>
+<div class="text-xs text-on-surface-variant">Qty: 2 Bags • $7.98</div>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/5">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-amber-700" data-icon="egg">egg</span>
+</div>
+<div>
+<div class="font-bold text-on-surface">Pasture Raised Eggs</div>
+<div class="text-xs text-on-surface-variant">Qty: 1 Dozen • $8.49</div>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/5">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-blue-700" data-icon="opacity">opacity</span>
+</div>
+<div>
+<div class="font-bold text-on-surface">Almond Milk</div>
+<div class="text-xs text-on-surface-variant">Qty: 1 Carton • $4.50</div>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+<!-- Item 4 -->
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/5">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-red-700" data-icon="nutrition">nutrition</span>
+</div>
+<div>
+<div class="font-bold text-on-surface">Roma Tomatoes</div>
+<div class="text-xs text-on-surface-variant">Qty: 0.8 lbs • $1.20</div>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col space-y-3">
+<button class="w-full py-4 bg-gradient-to-br from-primary to-primary-dim text-on-primary rounded-2xl font-bold shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center space-x-3">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span>Save to Inventory</span>
+</button>
+<button class="w-full py-4 text-on-surface-variant font-semibold hover:bg-surface-container-highest/30 rounded-2xl transition-all">
+                                Cancel
+                            </button>
+</div>
+<!-- Insight Card (Bonus Bento element) -->
+<div class="mt-8 p-4 bg-primary-container/30 rounded-2xl border border-primary/10">
+<div class="flex items-start space-x-3">
+<span class="material-symbols-outlined text-primary mt-1" data-icon="lightbulb">lightbulb</span>
+<div>
+<div class="text-sm font-bold text-primary font-headline">Smart Suggestion</div>
+<p class="text-xs text-on-primary-container leading-relaxed">3 items are already in your pantry. We'll merge quantities automatically to keep things clean.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Bottom Navigation Bar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-3 pb-8 md:hidden bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-t-3xl border-t border-zinc-100 dark:border-zinc-800 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<a class="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-emerald-600 transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="dashboard">dashboard</span>
+<span class="font-be-vietnam-pro text-[10px] uppercase tracking-widest">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-emerald-100/50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 rounded-2xl px-6 py-2 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="receipt_long">receipt_long</span>
+<span class="font-be-vietnam-pro text-[10px] uppercase tracking-widest">Scanner</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-emerald-600 transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-be-vietnam-pro text-[10px] uppercase tracking-widest">Recipes</span>
+</a>
+</nav>
+</body></html>

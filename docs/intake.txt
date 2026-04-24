@@ -1,0 +1,24 @@
+PRD: Intelligent Food Intake Engine (Vision & Barcode)Version: 
+1.0 Status: DraftOwner: Product Management1. Executive SummaryThe biggest friction point in home inventory management is data entry. This engine provides a "Zero-Tap" onboarding experience by combining GS1 Barcode Lookups for packaged goods and Gemini Multimodal Vision for produce and leftovers.
+2. User Stories As a user, I want to scan a grocery receipt so I don't have to enter 20 items manually.As a user, I want to point my camera at a fruit bowl so the app knows I have apples and bananas.As a user, I want the app to "guess" the weight of my produce so I don't have to use a kitchen scale.
+3. Functional Requirements
+3.1 Hybrid Scanning Interface FR-1: The camera UI must simultaneously look for 1D Barcodes (UPC/EAN) and Object Contours.FR-2: If a barcode is detected, the system must prioritize the GTIN lookup over visual recognition for 100% accuracy.FR-3: If no barcode is found, the system must send an image frame to Gemini 1.5 Flash for visual classification.
+3.2 Data Integration (GS1)FR-4: The system shall query a Barcode API (e.g., Barcode Lookup or Go-UPC) to retrieve:Product NameBrandCategory (GPC)Size/Weight (e.g., "16 oz")FR-5: The system must parse the "Size" string into a standardized numerical value (e.g., value: 16, unit: "oz") for recipe math.
+3.3 Multimodal Vision (The "Fresh" Logic)FR-6: For loose items (produce/leftovers), Gemini must return a JSON response including:item_nameestimated_quantityconfidence_score (0.0 - 1.0)FR-7: Gemini must categorize items into "Perishable" or "Pantry" based on visual appearance (e.g., a "brown banana" should be tagged as status: use_immediately).
+4. Technical Specifications
+4.1 The Vision Prompt (Internal API Call)The system will send the following instruction to Gemini when a non-barcoded item is scanned:"Analyze the provided image. Identify all food items. For each item, provide a JSON object with: common name, estimated count or weight, and a freshness rating from 1-5. Only return items you are >80% sure about."
+4.2 Data Schema (Inventory Item)
+JSON{
+"uid": "uuid-12345",
+"name": "Organic Honeycrisp Apple",
+"category": "Produce",
+"quantity": {
+"current": 3.0,
+"unit": "pieces"
+},
+"metadata": {
+"is_barcode": false,
+"confidence": 0.92,
+"added_at": "2026-03-31T14:00:00Z"
+}
+} 5. Success Metrics (KPIs)Time-to-Log: Average time (in seconds) to add 5 items to the inventory. Target: < 15 seconds.Recognition Accuracy: Percentage of items correctly identified by Gemini without user correction. Target: > 85%.Friction Score: Percentage of users who complete an "Intake Session" after opening the camera. Target: > 70%.6. Risks & MitigationsRiskMitigationMulti-pack identificationIf a user scans a "12-pack of soda," ensure the system logs 12 units, not 1 unit.Hallucinated quantitiesUse a "Confirm/Edit" UI toast after every visual scan to allow quick user overrides.ConnectivityImplement an offline queue for GTINs to be resolved once the user has Wi-Fi.
