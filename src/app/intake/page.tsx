@@ -59,9 +59,9 @@ export default function IntakePage() {
 
                 const data = await response.json();
                 setScannedItems(data.items || []);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error("Error analyzing image:", err);
-                setError(err.message || dict.errors.analysisFailed);
+                setError(err instanceof Error ? err.message : dict.errors.analysisFailed);
             } finally {
                 setIsAnalyzing(false);
                 if (fileInputRef.current) {
@@ -100,9 +100,9 @@ export default function IntakePage() {
             if (fileInputRef.current) {
                 fileInputRef.current.value = "";
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Error saving items:", err);
-            setError(err.message || dict.errors.saveFailed);
+            setError(err instanceof Error ? err.message : dict.errors.saveFailed);
         } finally {
             setIsSaving(false);
         }

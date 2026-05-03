@@ -81,11 +81,12 @@ Return an array of these JSON objects.`;
           },
         ]);
         break;
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (attempt === maxRetries) {
           throw err;
         }
-        console.warn(`Gemini API error (attempt ${attempt}): ${err.message}. Retrying...`);
+        const message = err instanceof Error ? err.message : String(err);
+        console.warn(`Gemini API error (attempt ${attempt}): ${message}. Retrying...`);
         await new Promise(resolve => setTimeout(resolve, attempt * 1000));
       }
     }
@@ -100,13 +101,13 @@ Return an array of these JSON objects.`;
     let parsedItems = [];
     try {
       parsedItems = JSON.parse(text);
-    } catch (e) {
+    } catch (_e) {
       console.error("Failed to parse JSON from Gemini", text);
       return NextResponse.json({ error: "Failed to process image. Please try again." }, { status: 500 });
     }
 
     return NextResponse.json({ items: parsedItems });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Vision API Error:", error);
     return NextResponse.json(
       { error: "Failed to process image. Please try again." },

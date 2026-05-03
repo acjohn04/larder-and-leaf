@@ -22,9 +22,9 @@ export default function GeneratorPage() {
         try {
             const result = await generateMealIdeas();
             setIdeas(result);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Error generating ideas:", err);
-            setError(err.message || dict.errors.generateFailed);
+            setError(err instanceof Error ? err.message : dict.errors.generateFailed);
         } finally {
             setIsLoading(false);
         }
