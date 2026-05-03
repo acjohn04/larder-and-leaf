@@ -1,0 +1,99 @@
+{
+  "app": {
+    "title": "Larder & Leaf",
+    "description": "The Digital Market Stand"
+  },
+  "sidebar": {
+    "heading": "The Pantry",
+    "addItem": "Add Item"
+  },
+  "topNav": {
+    "brand": "Larder & Leaf"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "scanner": "Scanner",
+    "recipes": "Menus"
+  },
+  "dashboard": {
+    "title": "Inventory Dashboard",
+    "subtitle": "Manage your fresh selections and pantry staples with ease. Everything is looking crisp today.",
+    "addReceipt": "Add Receipt",
+    "searchResults": "Search Results",
+    "totalItems": "Total Items",
+    "expiringSoon": "Expiring Soon",
+    "lowStock": "Low Stock",
+    "filterAll": "All Items",
+    "filterProduce": "Produce",
+    "filterDairy": "Dairy & Eggs",
+    "filterPantry": "Pantry",
+    "filterMeat": "Meat & Seafood",
+    "expiring": "Expiring",
+    "emptyTitle": "Your pantry is empty",
+    "emptyDescription": "Scan your first grocery receipt or upload a photo of your fresh produce to begin.",
+    "startScanning": "Start Scanning",
+    "searchPlaceholder": "Search your pantry..."
+  },
+  "addItemModal": {
+    "title": "Add New Item",
+    "labelName": "Item Name",
+    "placeholderName": "e.g. Fresh Basil, Organic Milk",
+    "labelQuantity": "Quantity",
+    "labelUnit": "Unit",
+    "placeholderUnit": "units, oz, lbs",
+    "labelCategory": "Category",
+    "submit": "Add to Inventory",
+    "errorMessage": "Failed to add item. Please try again."
+  },
+  "deleteModal": {
+    "title": "Remove Item?",
+    "description": "Are you sure you want to remove \"{itemName}\" from your inventory? This action cannot be undone.",
+    "fallbackName": "this item",
+    "confirm": "Yes, Delete It",
+    "cancel": "Cancel"
+  },
+  "categories": {
+    "produce": "Produce",
+    "pantry": "Pantry",
+    "dairyEggs": "Dairy & Eggs",
+    "meatSeafood": "Meat & Seafood",
+    "bakery": "Bakery",
+    "frozen": "Frozen"
+  },
+  "intake": {
+    "title": "Intake Scanner",
+    "subtitle": "Digitize your grocery receipts or fresh produce and instantly update your inventory.",
+    "dropHeading": "Drop receipt or photo here",
+    "dropSubtext": "or click to browse from your device",
+    "analyzingHeading": "Analyzing image...",
+    "analyzingSubtext": "Gemini is identifying items...",
+    "selectFile": "Select file",
+    "processing": "Processing...",
+    "analyzingPanel": "Analyzing...",
+    "analyzingPanelSubtext": "Looking for food items in your image.",
+    "identifiedItems": "Identified Items",
+    "itemsCount": "{count} items",
+    "confidenceSuffix": "sure",
+    "saving": "Saving...",
+    "addToInventory": "Add to Inventory",
+    "savedTitle": "Saved Successfully!",
+    "savedSubtext": "Your items have been added to the inventory.",
+    "emptyTitle": "No items scanned yet",
+    "emptySubtext": "Upload an image to see recognized items here."
+  },
+  "generator": {
+    "title": "Menu Generator",
+    "subtitle": "Intelligent pairings based on your freshly-stocked larder.",
+    "loading": "Consulting Chef Gemini...",
+    "generate": "Generate New Ideas",
+    "keyIngredients": "Key Ingredients",
+    "emptyTitle": "No menus yet",
+    "emptyDescription": "Click generate to let our AI build you a meal based on your current inventory."
+  },
+  "errors": {
+    "emptyPantry": "Your pantry is empty. Add some items first!",
+    "generateFailed": "Failed to generate ideas. Make sure you have items in your inventory!",
+    "analysisFailed": "Failed to analyze image",
+    "saveFailed": "Failed to save items to inventory."
+  }
+}

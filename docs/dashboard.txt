@@ -1,3 +1,0 @@
-Visual Stock Tracking: Real-time view of all items categorized by type (Produce, Dairy, Pantry, etc.).
-Urgency Alerts: Highlighting items that are low in stock or nearing their expiration date.
-Usage Insights: Tracking "Most Used" items for quick reordering or reference.

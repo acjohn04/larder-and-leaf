@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Larder & Leaf
+
+A premium grocery inventory management application powered by AI. Scan receipts, track expiration dates, and generate meal ideas — all from a beautifully crafted editorial interface.
+
+## Features
+
+- **📋 Inventory Dashboard** — View, search, and filter your pantry items at a glance with real-time stats for expiring and low-stock items.
+- **📸 Intake Scanner** — Upload photos of receipts or produce and let Gemini Vision identify items automatically with confidence scoring.
+- **🍽️ Menu Generator** — Generate AI-powered meal combo suggestions based on your current inventory.
+- **➕ Manual Entry** — Add items directly via a modal form with category selection.
+- **🌍 Internationalization** — Dictionary-based i18n system ready for multi-language expansion (currently English).
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | [Next.js 16](https://nextjs.org) (App Router) |
+| Language | TypeScript |
+| Styling | [Tailwind CSS v4](https://tailwindcss.com) with a custom `@theme` design system |
+| Database | SQLite via [Prisma](https://prisma.io) + [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) |
+| AI | [Google Gemini API](https://ai.google.dev) (Vision + Text generation) |
+| Validation | [Zod](https://zod.dev) for server action input validation |
+| Testing | [Vitest](https://vitest.dev) + [Testing Library](https://testing-library.com) |
+| Fonts | Plus Jakarta Sans (display) · Be Vietnam Pro (body) · Material Symbols |
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20+
+- A [Google Gemini API key](https://ai.google.dev)
+
+### Setup
 
 ```bash
+# Install dependencies
+npm install
+
+# Generate Prisma client
+npx prisma generate
+
+# Push database schema (creates dev.db)
+npx prisma db push
+
+# Start the dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env` file in the project root:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) to use the app.
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+larder-and-leaf/
+├── prisma/
+│   └── schema.prisma          # Database schema (InventoryItem model)
+├── src/
+│   ├── app/
+│   │   ├── actions/
+│   │   │   └── inventory.ts   # Server actions (CRUD + meal generation)
+│   │   ├── api/
+│   │   │   └── vision/
+│   │   │       └── route.ts   # POST endpoint for image analysis
+│   │   ├── generator/
+│   │   │   └── page.tsx       # AI meal generator page
+│   │   ├── intake/
+│   │   │   └── page.tsx       # Receipt/photo scanner page
+│   │   ├── globals.css        # Tailwind theme + custom utilities
+│   │   ├── layout.tsx         # Root layout (nav, sidebar, providers)
+│   │   └── page.tsx           # Dashboard / inventory overview
+│   ├── components/
+│   │   ├── AddItemModal.tsx   # Manual item entry form
+│   │   ├── CategoryFilter.tsx # URL-param-based category filters
+│   │   ├── DeleteButton.tsx   # Inline delete with confirmation
+│   │   ├── DeleteConfirmModal.tsx
+│   │   ├── DictionaryProvider.tsx # i18n context provider
+│   │   ├── MobileNav.tsx      # Bottom tab bar (mobile)
+│   │   ├── Sidebar.tsx        # Desktop navigation sidebar
+│   │   └── TopNav.tsx         # Top bar with search
+│   ├── constants/
+│   │   └── navigation.ts     # Shared nav item definitions
+│   ├── dictionaries/
+│   │   ├── en.json            # English string dictionary
+│   │   └── index.ts           # Dictionary loader + types
+│   └── lib/
+│       ├── gemini.ts          # Gemini AI client singleton
+│       └── prisma.ts          # Prisma client singleton
+├── __tests__/                 # Vitest unit + integration tests
+├── docs/                      # Page-level documentation
+│   ├── design.md              # Design system specification
+│   ├── dashboard.md           # Dashboard page docs
+│   ├── intake.md              # Intake Scanner page docs
+│   └── generator.md           # Menu Generator page docs
+└── package.json
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm run lint` | Run ESLint |
+| `npm test` | Run tests in watch mode |
+| `npm run test:ci` | Run tests once (CI mode) |
+| `npm run test:coverage` | Run tests with coverage report |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Documentation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Page-level documentation lives in the [`docs/`](docs/) directory:
+
+- [Design System](docs/design.md) — Colors, typography, elevation, and component guidelines
+- [Dashboard](docs/dashboard.md) — Inventory overview, search, filters, and stat cards
+- [Intake Scanner](docs/intake.md) — Image upload, Gemini Vision integration, and item saving
+- [Menu Generator](docs/generator.md) — AI meal suggestion generation flow
+
+## License
+
+Private project.
