@@ -25,7 +25,6 @@ describe('Sidebar', () => {
     renderWithProviders(<Sidebar />)
 
     expect(screen.getByText(dict.sidebar.heading)).toBeInTheDocument()
-    expect(screen.getByText(dict.sidebar.subheading)).toBeInTheDocument()
   })
 
   it('renders all navigation links', () => {

@@ -1,0 +1,52 @@
+FROM node:20-slim AS base
+# Install OpenSSL for Prisma and SQLite dependencies
+RUN apt-get update -y && apt-get install -y openssl
+
+FROM base AS deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+# Set a dummy DATABASE_URL for build if needed by prisma generate
+ENV DATABASE_URL="file:./dummy.db"
+# Set dummy API key to pass Next.js build-time environment variable validation
+ENV GEMINI_API_KEY="dummy_key_for_build"
+RUN npx prisma generate
+RUN npm run build
+
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Create a data directory for the SQLite database
+# The volume should be mounted to /app/data
+RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
+
+# Copy built assets
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy prisma directory for database pushes/migrations
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+# Copy prisma config so the CLI knows where the DB is
+COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
+
+# Install prisma CLI and config dependencies to evaluate prisma.config.ts
+RUN npm install prisma dotenv typescript ts-node
+
+USER nextjs
+
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# We use db push instead of migrate deploy because we don't have migrations yet
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node server.js"]
