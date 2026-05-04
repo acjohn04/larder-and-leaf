@@ -39,7 +39,7 @@ export async function generateMealIdeas() {
         throw new Error(dict.errors.emptyPantry);
     }
 
-    const inventoryList = inventory.map(item => `${item.name} (${item.quantity} ${item.unit})`).join(', ');
+    const inventoryList = inventory.map((item: { name: string; quantity: number; unit: string | null }) => `${item.name} (${item.quantity} ${item.unit})`).join(', ');
 
     // Use Gemini's typed responseSchema to guarantee the output
     // matches the MealIdea interface the client expects. This avoids

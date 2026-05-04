@@ -31,14 +31,11 @@ function createOversizedFile(sizeInBytes: number, name: string, type: string): F
 
 function createRequest(file?: File): Request {
     const formData = new FormData()
-    if (file) {
-        formData.append('image', file)
-    }
-    // URL is required by the Request constructor but unused by the route handler
-    return new Request('http://test/api/vision', {
-        method: 'POST',
-        body: formData,
-    })
+    formData.get = vi.fn().mockReturnValue(file || null)
+
+    return {
+        formData: vi.fn().mockResolvedValue(formData),
+    } as unknown as Request
 }
 
 // --- Tests ---

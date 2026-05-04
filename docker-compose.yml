@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      # Point to the SQLite DB on the mounted volume
+      - DATABASE_URL=file:/app/data/prod.db
+      # Pass the API key from the host's .env file
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      # Mount a local directory to persist the SQLite database
+      - larder_data:/app/data
+
+volumes:
+  larder_data:

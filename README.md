@@ -12,16 +12,16 @@ A premium grocery inventory management application powered by AI. Scan receipts,
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | [Next.js 16](https://nextjs.org) (App Router) |
-| Language | TypeScript |
-| Styling | [Tailwind CSS v4](https://tailwindcss.com) with a custom `@theme` design system |
-| Database | SQLite via [Prisma](https://prisma.io) + [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) |
-| AI | [Google Gemini API](https://ai.google.dev) (Vision + Text generation) |
-| Validation | [Zod](https://zod.dev) for server action input validation |
-| Testing | [Vitest](https://vitest.dev) + [Testing Library](https://testing-library.com) |
-| Fonts | Plus Jakarta Sans (display) · Be Vietnam Pro (body) · Material Symbols |
+| Layer      | Technology                                                                                            |
+| ---------- | ----------------------------------------------------------------------------------------------------- |
+| Framework  | [Next.js 16](https://nextjs.org) (App Router)                                                         |
+| Language   | TypeScript                                                                                            |
+| Styling    | [Tailwind CSS v4](https://tailwindcss.com) with a custom `@theme` design system                       |
+| Database   | SQLite via [Prisma](https://prisma.io) + [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) |
+| AI         | [Google Gemini API](https://ai.google.dev) (Vision + Text generation)                                 |
+| Validation | [Zod](https://zod.dev) for server action input validation                                             |
+| Testing    | [Vitest](https://vitest.dev) + [Testing Library](https://testing-library.com)                         |
+| Fonts      | Plus Jakarta Sans (display) · Be Vietnam Pro (body) · Material Symbols                                |
 
 ## Getting Started
 
@@ -55,6 +55,31 @@ GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to use the app.
+
+## Docker & Deployment
+
+This project is configured for containerized deployment using a multi-stage Dockerfile and Docker Compose, optimized for environments like DigitalOcean App Platform or standard Droplets.
+
+### Local Deployment with Docker Compose
+
+You can run the entire application stack locally using Docker Compose. This ensures a consistent environment and automatically mounts a local volume to persist your SQLite database.
+
+```bash
+docker compose up --build
+```
+
+The app will be available at `http://localhost:3000`.
+
+### DigitalOcean App Platform
+
+To deploy this containerized application on DigitalOcean App Platform:
+
+1. Connect your GitHub repository to a new App Platform app.
+2. App Platform will automatically detect the `Dockerfile` and switch to a container-based build.
+3. **CRITICAL FOR SQLITE**: To prevent data loss on every deployment, you must attach a **Volume** to your App component.
+   - Mount the volume to the container path `/app/data`.
+   - Set the `DATABASE_URL` environment variable to `file:/app/data/prod.db`.
+4. Set the `GEMINI_API_KEY` environment variable in the App Platform settings.
 
 ## Project Structure
 
@@ -104,13 +129,13 @@ larder-and-leaf/
 
 ## Scripts
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start development server |
-| `npm run build` | Production build |
-| `npm run lint` | Run ESLint |
-| `npm test` | Run tests in watch mode |
-| `npm run test:ci` | Run tests once (CI mode) |
+| Command                 | Description                    |
+| ----------------------- | ------------------------------ |
+| `npm run dev`           | Start development server       |
+| `npm run build`         | Production build               |
+| `npm run lint`          | Run ESLint                     |
+| `npm test`              | Run tests in watch mode        |
+| `npm run test:ci`       | Run tests once (CI mode)       |
 | `npm run test:coverage` | Run tests with coverage report |
 
 ## Documentation
