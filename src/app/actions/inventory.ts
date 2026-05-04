@@ -6,6 +6,7 @@ import { SchemaType } from '@google/generative-ai'
 import { genAI } from '@/lib/gemini'
 import { prisma } from '@/lib/prisma'
 import { getDictionary } from '@/dictionaries'
+import { InventoryItem } from '@prisma/client'
 
 // --- Validation Schemas ---
 // All server action inputs pass through Zod before touching the database.
@@ -39,7 +40,7 @@ export async function generateMealIdeas() {
         throw new Error(dict.errors.emptyPantry);
     }
 
-    const inventoryList = inventory.map((item: { name: string; quantity: number; unit: string | null }) => `${item.name} (${item.quantity} ${item.unit})`).join(', ');
+    const inventoryList = inventory.map((item: InventoryItem) => `${item.name} (${item.quantity} ${item.unit})`).join(', ');
 
     // Use Gemini's typed responseSchema to guarantee the output
     // matches the MealIdea interface the client expects. This avoids

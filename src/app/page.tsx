@@ -3,6 +3,7 @@ import { getInventory } from './actions/inventory';
 import DeleteButton from '../components/DeleteButton';
 import CategoryFilter from '../components/CategoryFilter';
 import { getDictionary } from '@/dictionaries';
+import { InventoryItem } from '@prisma/client';
 
 export default async function DashboardPage({
     searchParams,
@@ -10,7 +11,7 @@ export default async function DashboardPage({
     searchParams: Promise<{ q?: string; category?: string }>;
 }) {
     const { q, category } = await searchParams;
-    const inventory = await getInventory();
+    const inventory = (await getInventory()) as InventoryItem[];
     const dict = await getDictionary();
 
     // Two-pass filter pipeline: search query (substring) → category (exact match).
