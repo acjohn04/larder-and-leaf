@@ -88,7 +88,6 @@ describe('POST /api/vision', () => {
             const file = createMockFile('hello', 'notes.txt', 'text/plain')
             const req = createRequest(file)
             const res = await POST(req)
-            const _body = await res.json()
 
             expect(res.status).toBe(415)
         })

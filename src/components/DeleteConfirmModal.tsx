@@ -2,14 +2,14 @@
 
 import { useDictionary } from './DictionaryProvider'
 
-export default function DeleteConfirmModal({ 
-    isOpen, 
-    onClose, 
-    onConfirm, 
-    itemName 
-}: { 
-    isOpen: boolean, 
-    onClose: () => void, 
+export default function DeleteConfirmModal({
+    isOpen,
+    onClose,
+    onConfirm,
+    itemName
+}: {
+    isOpen: boolean,
+    onClose: () => void,
     onConfirm: () => void,
     itemName?: string
 }) {
@@ -26,22 +26,22 @@ export default function DeleteConfirmModal({
                     <div className="h-16 w-16 bg-error/10 rounded-2xl flex items-center justify-center text-error mb-6">
                         <span className="material-symbols-outlined text-4xl">delete_forever</span>
                     </div>
-                    
+
                     <h2 className="text-2xl font-bold font-display text-on-surface mb-2">{dict.deleteModal.title}</h2>
                     <p className="text-on-surface-variant text-sm leading-relaxed mb-8">
                         {dict.deleteModal.description.replace('{itemName}', displayName)}
                     </p>
 
                     <div className="flex flex-col w-full gap-3">
-                        <button 
+                        <button
                             onClick={onConfirm}
-                            className="w-full py-4 bg-error text-on-error rounded-2xl font-bold shadow-ambient-md shadow-error/20 active:scale-95 transition-all"
+                            className="w-full py-4 bg-error text-on-error rounded-2xl font-bold shadow-ambient-md shadow-error/20 active:scale-95 transition-all cursor-pointer"
                         >
                             {dict.deleteModal.confirm}
                         </button>
-                        <button 
+                        <button
                             onClick={onClose}
-                            className="w-full py-4 bg-surface-container-high text-on-surface rounded-2xl font-bold active:scale-95 transition-all"
+                            className="w-full py-4 bg-surface-container-high text-on-surface rounded-2xl font-bold active:scale-95 transition-all cursor-pointer"
                         >
                             {dict.deleteModal.cancel}
                         </button>

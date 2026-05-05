@@ -27,6 +27,8 @@ export default function IntakePage() {
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const dict = useDictionary();
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editForm, setEditForm] = useState<Partial<IntakeItem>>({});
 
     const handleContainerClick = () => {
         if (!isAnalyzing) {
@@ -108,6 +110,38 @@ export default function IntakePage() {
         }
     };
 
+    const handleEditClick = (index: number, item: IntakeItem) => {
+        setEditingIndex(index);
+        setEditForm({ ...item, quantity: { ...item.quantity } });
+    };
+
+    const handleDeleteClick = (index: number) => {
+        const newItems = [...scannedItems];
+        newItems.splice(index, 1);
+        setScannedItems(newItems);
+        if (editingIndex === index) {
+            setEditingIndex(null);
+        } else if (editingIndex !== null && editingIndex > index) {
+            setEditingIndex(editingIndex - 1);
+        }
+    };
+
+    const handleSaveEdit = () => {
+        if (editingIndex !== null) {
+            const newItems = [...scannedItems];
+            newItems[editingIndex] = {
+                ...newItems[editingIndex],
+                ...editForm,
+            } as IntakeItem;
+            setScannedItems(newItems);
+            setEditingIndex(null);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setEditingIndex(null);
+    };
+
     return (
         <div>
             <header className="mb-10">
@@ -174,19 +208,85 @@ export default function IntakePage() {
                              <div className="flex flex-col space-y-3 max-h-[60vh] overflow-y-auto pr-2">
                                  {scannedItems.map((item, index) => (
                                      <div key={index} className="bg-surface p-4 rounded-xl shadow-sm border border-outline-variant/20 flex flex-col">
-                                         <div className="flex justify-between items-start mb-2">
-                                             <h4 className="font-semibold text-on-surface">{item.name}</h4>
-                                             <span className="text-xs bg-secondary-container text-on-secondary-container px-2 py-1 rounded-md font-medium">
-                                                 {item.quantity.current} {item.quantity.unit}
-                                             </span>
-                                         </div>
-                                         <div className="flex justify-between items-center text-xs text-on-surface-variant">
-                                             <span className="capitalize">{item.category} • {item.metadata.status.replace("_", " ")}</span>
-                                             <span className="flex items-center text-tertiary">
-                                                 <span className="material-symbols-outlined text-[14px] mr-1" data-icon="robot_2">robot_2</span>
-                                                 {Math.round(item.metadata.confidence * 100)}% {dict.intake.confidenceSuffix}
-                                             </span>
-                                         </div>
+                                         {editingIndex === index ? (
+                                             <div className="flex flex-col space-y-3">
+                                                 <input 
+                                                     type="text" 
+                                                     value={editForm.name || ''} 
+                                                     onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                                                     className="w-full bg-surface-container border border-outline-variant/30 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-on-surface"
+                                                     placeholder="Item Name"
+                                                 />
+                                                 <div className="flex space-x-2">
+                                                     <input 
+                                                         type="number" 
+                                                         value={editForm.quantity?.current === undefined ? '' : editForm.quantity.current} 
+                                                         onChange={(e) => setEditForm({...editForm, quantity: { current: parseFloat(e.target.value) || 0, unit: editForm.quantity?.unit || '' }})}
+                                                         className="w-1/2 bg-surface-container border border-outline-variant/30 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-on-surface"
+                                                         placeholder="Quantity"
+                                                     />
+                                                     <input 
+                                                         type="text" 
+                                                         value={editForm.quantity?.unit || ''} 
+                                                         onChange={(e) => setEditForm({...editForm, quantity: { current: editForm.quantity?.current || 0, unit: e.target.value }})}
+                                                         className="w-1/2 bg-surface-container border border-outline-variant/30 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-on-surface"
+                                                         placeholder="Unit"
+                                                     />
+                                                 </div>
+                                                 <select
+                                                     value={editForm.category || ''}
+                                                     onChange={(e) => setEditForm({...editForm, category: e.target.value})}
+                                                     className="w-full bg-surface-container border border-outline-variant/30 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-on-surface"
+                                                 >
+                                                     <option value="produce">{dict.categories.produce}</option>
+                                                     <option value="pantry">{dict.categories.pantry}</option>
+                                                     <option value="dairy_eggs">{dict.categories.dairy_eggs}</option>
+                                                     <option value="meat_seafood">{dict.categories.meat_seafood}</option>
+                                                     <option value="bakery">{dict.categories.bakery}</option>
+                                                     <option value="frozen">{dict.categories.frozen}</option>
+                                                 </select>
+                                                 <div className="flex justify-end space-x-2 mt-2 pt-2 border-t border-outline-variant/10">
+                                                     <button onClick={handleCancelEdit} className="px-4 py-2 text-xs font-bold text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors cursor-pointer">{dict.intake.cancelEdit}</button>
+                                                     <button onClick={handleSaveEdit} className="px-4 py-2 text-xs font-bold bg-primary text-on-primary hover:bg-primary/90 rounded-full transition-colors shadow-sm cursor-pointer">{dict.intake.saveItem}</button>
+                                                 </div>
+                                             </div>
+                                         ) : (
+                                             <>
+                                                 <div className="flex justify-between items-start mb-2">
+                                                     <div>
+                                                         <h4 className="font-semibold text-on-surface">{item.name}</h4>
+                                                         <div className="text-xs text-on-surface-variant uppercase tracking-wider font-semibold mt-1">
+                                                             {dict.categories[item.category.toLowerCase() as keyof typeof dict.categories] || item.category} • {item.metadata.status.replace("_", " ")}
+                                                         </div>
+                                                     </div>
+                                                     <div className="flex flex-col items-end">
+                                                         <span className="text-xs bg-secondary-container text-on-secondary-container px-2 py-1 rounded-md font-medium">
+                                                             {item.quantity.current} {item.quantity.unit}
+                                                         </span>
+                                                     </div>
+                                                 </div>
+                                                 <div className="flex justify-between items-center mt-3 border-t border-outline-variant/10 pt-3">
+                                                     <span className="flex items-center text-tertiary text-[10px] font-medium bg-tertiary/10 px-2 py-1 rounded-md">
+                                                         <span className="material-symbols-outlined text-[12px] mr-1" data-icon="robot_2">robot_2</span>
+                                                         {Math.round(item.metadata.confidence * 100)}% {dict.intake.confidenceSuffix}
+                                                     </span>
+                                                     <div className="flex space-x-1">
+                                                         <button onClick={() => handleEditClick(index, item)} className="group relative p-1.5 text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center cursor-pointer" aria-label={dict.intake.editItem}>
+                                                             <span className="material-symbols-outlined text-[18px]">edit</span>
+                                                             <span className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition-transform origin-bottom bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-1 rounded-md whitespace-nowrap shadow-sm z-10 pointer-events-none">
+                                                                 {dict.intake.editItem}
+                                                             </span>
+                                                         </button>
+                                                         <button onClick={() => handleDeleteClick(index)} className="group relative p-1.5 text-on-surface-variant hover:text-error hover:bg-error/10 rounded-lg transition-colors flex items-center cursor-pointer" aria-label={dict.intake.deleteItem}>
+                                                             <span className="material-symbols-outlined text-[18px]">delete</span>
+                                                             <span className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition-transform origin-bottom bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-1 rounded-md whitespace-nowrap shadow-sm z-10 pointer-events-none">
+                                                                 {dict.intake.deleteItem}
+                                                             </span>
+                                                         </button>
+                                                     </div>
+                                                 </div>
+                                             </>
+                                         )}
                                      </div>
                                  ))}
                              </div>

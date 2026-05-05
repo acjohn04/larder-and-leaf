@@ -6,7 +6,7 @@ import { useDictionary } from './DictionaryProvider'
 
 export default function AddItemModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
     const [name, setName] = useState('')
-    const [category, setCategory] = useState('Pantry')
+    const [category, setCategory] = useState('pantry')
     const [quantity, setQuantity] = useState(1)
     const [unit, setUnit] = useState('units')
     const [isSaving, setIsSaving] = useState(false)
@@ -26,7 +26,7 @@ export default function AddItemModal({ isOpen, onClose }: { isOpen: boolean, onC
                 confidenceScore: 1.0 // Manual entry is 100% confident
             }])
             setName('')
-            setCategory('Pantry')
+            setCategory('pantry')
             setQuantity(1)
             setUnit('units')
             onClose()
@@ -92,12 +92,12 @@ export default function AddItemModal({ isOpen, onClose }: { isOpen: boolean, onC
                             onChange={(e) => setCategory(e.target.value)}
                             className="w-full px-6 py-4 bg-surface-container-low rounded-2xl border-none outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium appearance-none"
                         >
-                            <option value="Produce">{dict.categories.produce}</option>
-                            <option value="Pantry">{dict.categories.pantry}</option>
-                            <option value="Dairy & Eggs">{dict.categories.dairyEggs}</option>
-                            <option value="Meat & Seafood">{dict.categories.meatSeafood}</option>
-                            <option value="Bakery">{dict.categories.bakery}</option>
-                            <option value="Frozen">{dict.categories.frozen}</option>
+                            <option value="produce">{dict.categories.produce}</option>
+                            <option value="pantry">{dict.categories.pantry}</option>
+                            <option value="dairy_eggs">{dict.categories.dairy_eggs}</option>
+                            <option value="meat_seafood">{dict.categories.meat_seafood}</option>
+                            <option value="bakery">{dict.categories.bakery}</option>
+                            <option value="frozen">{dict.categories.frozen}</option>
                         </select>
                     </div>
 

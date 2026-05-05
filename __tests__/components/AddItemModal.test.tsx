@@ -53,8 +53,8 @@ describe('AddItemModal', () => {
 
     expect(screen.getByText(dict.categories.produce)).toBeInTheDocument()
     expect(screen.getByText(dict.categories.pantry)).toBeInTheDocument()
-    expect(screen.getByText(dict.categories.dairyEggs)).toBeInTheDocument()
-    expect(screen.getByText(dict.categories.meatSeafood)).toBeInTheDocument()
+    expect(screen.getByText(dict.categories.dairy_eggs)).toBeInTheDocument()
+    expect(screen.getByText(dict.categories.meat_seafood)).toBeInTheDocument()
     expect(screen.getByText(dict.categories.bakery)).toBeInTheDocument()
     expect(screen.getByText(dict.categories.frozen)).toBeInTheDocument()
   })
@@ -84,7 +84,7 @@ describe('AddItemModal', () => {
       expect(mockAddInventoryItems).toHaveBeenCalledWith([
         {
           name: 'Fresh Basil',
-          category: 'Pantry',
+          category: 'pantry',
           quantity: 1,
           unit: 'units',
           confidenceScore: 1.0,

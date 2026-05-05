@@ -16,15 +16,15 @@ export default async function DashboardPage({
 
     // Two-pass filter pipeline: search query (substring) → category (exact match).
     // Both are driven by URL search params set by CategoryFilter.
-    const searchFiltered = q 
-        ? inventory.filter(item => 
-            item.name.toLowerCase().includes(q.toLowerCase()) || 
+    const searchFiltered = q
+        ? inventory.filter(item =>
+            item.name.toLowerCase().includes(q.toLowerCase()) ||
             item.category.toLowerCase().includes(q.toLowerCase())
-          )
+        )
         : inventory;
 
     const filteredInventory = category
-        ? searchFiltered.filter(item => item.category === category)
+        ? searchFiltered.filter(item => item.category.toLowerCase() === category.toLowerCase())
         : searchFiltered;
 
     // Compute stat card values.
@@ -35,13 +35,13 @@ export default async function DashboardPage({
     const threeDaysFromNow = new Date();
     threeDaysFromNow.setDate(now.getDate() + 3);
 
-    const expiringSoonCount = filteredInventory.filter(item => 
-        item.expiresAt && 
-        new Date(item.expiresAt) <= threeDaysFromNow && 
+    const expiringSoonCount = filteredInventory.filter(item =>
+        item.expiresAt &&
+        new Date(item.expiresAt) <= threeDaysFromNow &&
         new Date(item.expiresAt) >= now
     ).length;
 
-    const lowStockCount = filteredInventory.filter(item => 
+    const lowStockCount = filteredInventory.filter(item =>
         item.minThreshold > 0 && item.quantity <= item.minThreshold
     ).length;
 
@@ -99,7 +99,7 @@ export default async function DashboardPage({
                     {filteredInventory.map((item) => {
                         const isExpiring = item.expiresAt && new Date(item.expiresAt) <= threeDaysFromNow;
                         const isLowStock = item.minThreshold > 0 && item.quantity <= item.minThreshold;
-                        
+
                         return (
                             <div key={item.id} className={`bg-surface-container-low p-5 rounded-2xl border transition-all group ${isExpiring ? 'border-error/30 bg-error/[0.02]' : 'border-outline-variant/10'} hover:shadow-ambient-md`}>
                                 <div className="flex justify-between items-start mb-3">
@@ -110,7 +110,9 @@ export default async function DashboardPage({
                                                 <span className="bg-error text-on-error text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-tighter">{dict.dashboard.expiring}</span>
                                             )}
                                         </div>
-                                        <p className="text-xs text-on-surface-variant uppercase tracking-wider font-semibold mt-1">{item.category}</p>
+                                        <p className="text-xs text-on-surface-variant uppercase tracking-wider font-semibold mt-1">
+                                            {dict.categories[item.category.toLowerCase() as keyof typeof dict.categories] || item.category}
+                                        </p>
                                     </div>
                                     <DeleteButton id={item.id} name={item.name} />
                                 </div>
@@ -119,12 +121,6 @@ export default async function DashboardPage({
                                         <span className={`text-lg font-bold ${isLowStock ? 'text-error' : 'text-primary'}`}>{item.quantity}</span>
                                         <span className="text-xs text-on-surface-variant font-medium lowercase">{item.unit}</span>
                                     </div>
-                                    {item.confidenceScore && (
-                                        <div className="flex items-center gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
-                                            <span className="material-symbols-outlined text-[12px] text-tertiary">robot_2</span>
-                                            <span className="text-[10px] font-bold text-tertiary">{Math.round(item.confidenceScore * 100)}%</span>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         );

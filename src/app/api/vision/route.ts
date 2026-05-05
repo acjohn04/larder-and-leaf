@@ -38,6 +38,56 @@ export async function POST(req: Request) {
       );
     }
 
+    if (process.env.USE_MOCK_GEMINI === 'true') {
+      console.log("Using MOCK Gemini response for vision API.");
+      return NextResponse.json({
+        items: [
+          {
+            uid: "mock-1",
+            name: "Fresh Spinach",
+            category: "produce",
+            quantity: { current: 1, unit: "bag" },
+            expires_in_days: 7,
+            metadata: {
+              is_barcode: false,
+              confidence: 0.95,
+              added_at: new Date().toISOString(),
+              freshness_rating: 4,
+              status: "use_immediately"
+            }
+          },
+          {
+            uid: "mock-2",
+            name: "Organic Eggs",
+            category: "dairy_eggs",
+            quantity: { current: 12, unit: "pieces" },
+            expires_in_days: 21,
+            metadata: {
+              is_barcode: false,
+              confidence: 0.99,
+              added_at: new Date().toISOString(),
+              freshness_rating: 5,
+              status: "pantry"
+            }
+          },
+          {
+            uid: "mock-3",
+            name: "Whole Wheat Bread",
+            category: "bakery",
+            quantity: { current: 1, unit: "loaf" },
+            expires_in_days: 5,
+            metadata: {
+              is_barcode: false,
+              confidence: 0.90,
+              added_at: new Date().toISOString(),
+              freshness_rating: 3,
+              status: "pantry"
+            }
+          }
+        ]
+      });
+    }
+
     // Configure Gemini to return structured JSON directly,
     // avoiding the need for manual text extraction from the response.
     const model = genAI.getGenerativeModel({
@@ -51,13 +101,23 @@ export async function POST(req: Request) {
     const arrayBuffer = await imageFile.arrayBuffer();
     const base64Image = Buffer.from(arrayBuffer).toString("base64");
 
-    const prompt = `Analyze the provided image. Identify all food items. For each item, provide a JSON object with:
+    const prompt = `Analyze the provided image. Identify all food items.
+IMPORTANT: Do NOT include any drinks or beverages (e.g., soda, juice, water, alcohol, coffee, tea). Focus exclusively on solid food items and cooking ingredients.
+
+For each item, provide a JSON object with:
 - uid: a generated string uuid
 - name: common name of the item
-- category: "Produce" or "Pantry" or other relevant category based on visual appearance.
+- category: MUST be one of ["produce", "pantry", "dairy_eggs", "meat_seafood", "bakery", "frozen"]
 - quantity: an object with "current" (number) and "unit" (string, e.g., "pieces", "oz", "lbs")
 - expires_in_days: an estimated number of days until the item expires based on its type and visual freshness (number)
-- metadata: an object with "is_barcode": false, "confidence": number between 0.0 and 1.0, "added_at": current ISO date string, and "freshness_rating": number from 1-5, and "status": "use_immediately" or "pantry" based on appearance.
+- metadata: an object with:
+  - is_barcode: false
+  - confidence: number between 0.0 and 1.0
+  - added_at: current ISO date string
+  - freshness_rating: number from 1-5
+  - status: MUST be one of ["use_immediately", "pantry", "refrigerated", "frozen"]. 
+    * Rule: If category is "frozen", status MUST be "frozen". 
+    * Rule: If category is "pantry", status MUST be "pantry".
 
 Only return items you are >80% sure about. 
 Return an array of these JSON objects.`;
@@ -101,7 +161,7 @@ Return an array of these JSON objects.`;
     let parsedItems = [];
     try {
       parsedItems = JSON.parse(text);
-    } catch (_e) {
+    } catch {
       console.error("Failed to parse JSON from Gemini", text);
       return NextResponse.json({ error: "Failed to process image. Please try again." }, { status: 500 });
     }

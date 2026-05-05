@@ -28,6 +28,8 @@
     "filterDairy": "Dairy & Eggs",
     "filterPantry": "Pantry",
     "filterMeat": "Meat & Seafood",
+    "filterBakery": "Bakery",
+    "filterFrozen": "Frozen",
     "expiring": "Expiring",
     "emptyTitle": "Your pantry is empty",
     "emptyDescription": "Scan your first grocery receipt or upload a photo of your fresh produce to begin.",
@@ -55,8 +57,8 @@
   "categories": {
     "produce": "Produce",
     "pantry": "Pantry",
-    "dairyEggs": "Dairy & Eggs",
-    "meatSeafood": "Meat & Seafood",
+    "dairy_eggs": "Dairy & Eggs",
+    "meat_seafood": "Meat & Seafood",
     "bakery": "Bakery",
     "frozen": "Frozen"
   },
@@ -79,21 +81,31 @@
     "savedTitle": "Saved Successfully!",
     "savedSubtext": "Your items have been added to the inventory.",
     "emptyTitle": "No items scanned yet",
-    "emptySubtext": "Upload an image to see recognized items here."
+    "emptySubtext": "Upload an image to see recognized items here.",
+    "editItem": "Edit",
+    "deleteItem": "Delete",
+    "saveItem": "Save",
+    "cancelEdit": "Cancel"
   },
   "generator": {
     "title": "Menu Generator",
     "subtitle": "Intelligent pairings based on your freshly-stocked larder.",
     "loading": "Consulting Chef Gemini...",
     "generate": "Generate New Ideas",
-    "keyIngredients": "Key Ingredients",
+    "keyIngredients": "Ingredients Used",
     "emptyTitle": "No menus yet",
-    "emptyDescription": "Click generate to let our AI build you a meal based on your current inventory."
+    "emptyDescription": "Click generate to let our AI build you a meal based on your current inventory.",
+    "selectMeal": "Select Meal",
+    "numPeople": "Number of People",
+    "confirmMeal": "Confirm & Cook",
+    "cooking": "Updating Inventory...",
+    "perPerson": "per person"
   },
   "errors": {
     "emptyPantry": "Your pantry is empty. Add some items first!",
     "generateFailed": "Failed to generate ideas. Make sure you have items in your inventory!",
     "analysisFailed": "Failed to analyze image",
-    "saveFailed": "Failed to save items to inventory."
+    "saveFailed": "Failed to save items to inventory.",
+    "consumeFailed": "Failed to update inventory. Please try again."
   }
 }

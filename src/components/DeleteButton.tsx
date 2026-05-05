@@ -14,15 +14,15 @@ export default function DeleteButton({ id, name }: { id: string, name: string })
 
     return (
         <>
-            <button 
+            <button
                 onClick={() => setIsModalOpen(true)}
-                className="text-on-surface-variant hover:text-error transition-colors p-1"
+                className="cursor-pointer text-on-surface-variant hover:text-error transition-colors p-1"
                 aria-label={`Delete ${name}`}
             >
                 <span className="material-symbols-outlined text-[18px]" aria-hidden="true">delete</span>
             </button>
 
-            <DeleteConfirmModal 
+            <DeleteConfirmModal
                 isOpen={isModalOpen}
                 itemName={name}
                 onClose={() => setIsModalOpen(false)}
