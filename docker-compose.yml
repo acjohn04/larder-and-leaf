@@ -12,6 +12,7 @@ services:
       - DATABASE_URL=file:/app/data/prod.db
       # Pass the API key from the host's .env file
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - USE_MOCK_GEMINI=${USE_MOCK_GEMINI:-false}
     volumes:
       # Mount a local directory to persist the SQLite database
       - larder_data:/app/data

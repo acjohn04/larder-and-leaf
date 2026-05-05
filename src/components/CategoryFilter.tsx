@@ -6,10 +6,12 @@ import { useDictionary } from './DictionaryProvider'
 
 const CATEGORY_FILTERS = [
     { key: 'all', labelKey: 'filterAll' as const, value: '' },
-    { key: 'produce', labelKey: 'filterProduce' as const, value: 'Produce' },
-    { key: 'dairy', labelKey: 'filterDairy' as const, value: 'Dairy & Eggs' },
-    { key: 'pantry', labelKey: 'filterPantry' as const, value: 'Pantry' },
-    { key: 'meat', labelKey: 'filterMeat' as const, value: 'Meat & Seafood' },
+    { key: 'produce', labelKey: 'filterProduce' as const, value: 'produce' },
+    { key: 'dairy', labelKey: 'filterDairy' as const, value: 'dairy_eggs' },
+    { key: 'pantry', labelKey: 'filterPantry' as const, value: 'pantry' },
+    { key: 'meat', labelKey: 'filterMeat' as const, value: 'meat_seafood' },
+    { key: 'bakery', labelKey: 'filterBakery' as const, value: 'bakery' },
+    { key: 'frozen', labelKey: 'filterFrozen' as const, value: 'frozen' },
 ] as const
 
 export default function CategoryFilter() {
@@ -33,6 +35,10 @@ export default function CategoryFilter() {
 
         const timer = setTimeout(() => {
             const params = new URLSearchParams(searchParams.toString())
+            const currentQ = params.get('q') || ''
+
+            if (query === currentQ) return
+
             if (query) {
                 params.set('q', query)
             } else {

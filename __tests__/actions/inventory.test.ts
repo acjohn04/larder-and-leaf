@@ -9,14 +9,24 @@ vi.mock('next/cache', () => ({
 }))
 
 // Mock Prisma client
-const mockCreateMany = vi.fn().mockResolvedValue({ count: 1 })
+const mockFindFirst = vi.fn()
+const mockUpdate = vi.fn()
+const mockCreate = vi.fn()
 const mockDelete = vi.fn().mockResolvedValue({})
 const mockFindMany = vi.fn().mockResolvedValue([])
 
 vi.mock('@/lib/prisma', () => ({
     prisma: {
+        $transaction: vi.fn(async (callback) => await callback({
+            inventoryItem: {
+                findFirst: (...args: unknown[]) => mockFindFirst(...args),
+                update: (...args: unknown[]) => mockUpdate(...args),
+                create: (...args: unknown[]) => mockCreate(...args),
+                delete: (...args: unknown[]) => mockDelete(...args),
+                findMany: (...args: unknown[]) => mockFindMany(...args),
+            }
+        })),
         inventoryItem: {
-            createMany: (...args: unknown[]) => mockCreateMany(...args),
             delete: (...args: unknown[]) => mockDelete(...args),
             findMany: (...args: unknown[]) => mockFindMany(...args),
         },
@@ -54,16 +64,46 @@ describe('addInventoryItems', () => {
         confidenceScore: 0.95,
     }
 
-    it('accepts a valid item and calls Prisma', async () => {
+    it('accepts a valid item and calls Prisma create when not found', async () => {
+        mockFindFirst.mockResolvedValue(null)
         await addInventoryItems([validItem])
 
-        expect(mockCreateMany).toHaveBeenCalledOnce()
-        const callData = mockCreateMany.mock.calls[0][0].data
-        expect(callData).toHaveLength(1)
-        expect(callData[0].name).toBe('Apples')
+        expect(mockCreate).toHaveBeenCalledOnce()
+        const callData = mockCreate.mock.calls[0][0].data
+        expect(callData.name).toBe('Apples')
+    })
+
+    it('updates quantity when an item with the same name exists', async () => {
+        mockFindFirst.mockResolvedValue({ id: 'existing-id', name: 'Apples', quantity: 10 })
+        await addInventoryItems([validItem]) // validItem has quantity 5
+
+        expect(mockUpdate).toHaveBeenCalledOnce()
+        expect(mockUpdate).toHaveBeenCalledWith({
+            where: { id: 'existing-id' },
+            data: { quantity: { increment: 5 } }
+        })
+        expect(mockCreate).not.toBeCalled()
+    })
+
+    it('aggregates items with the same name in a single batch', async () => {
+        mockFindFirst.mockResolvedValue(null)
+        const batch = [
+            { ...validItem, name: 'Banana', quantity: 2 },
+            { ...validItem, name: 'Banana', quantity: 3 },
+        ]
+        await addInventoryItems(batch)
+
+        // Should only call findFirst once for 'Banana' because they are aggregated
+        expect(mockFindFirst).toHaveBeenCalledOnce()
+        expect(mockFindFirst).toHaveBeenCalledWith({ where: { name: 'Banana' } })
+        
+        // Should call create once with combined quantity 5
+        expect(mockCreate).toHaveBeenCalledOnce()
+        expect(mockCreate.mock.calls[0][0].data.quantity).toBe(5)
     })
 
     it('applies defaults for unit and minThreshold when omitted', async () => {
+        mockFindFirst.mockResolvedValue(null)
         await addInventoryItems([{
             name: 'Rice',
             category: 'Pantry',
@@ -71,22 +111,24 @@ describe('addInventoryItems', () => {
             confidenceScore: 0.8,
         }])
 
-        const callData = mockCreateMany.mock.calls[0][0].data
-        expect(callData[0].unit).toBe('units')
-        expect(callData[0].minThreshold).toBe(0)
+        const callData = mockCreate.mock.calls[0][0].data
+        expect(callData.unit).toBe('units')
+        expect(callData.minThreshold).toBe(0)
     })
 
     it('accepts expiresAt as a Date', async () => {
+        mockFindFirst.mockResolvedValue(null)
         const expiry = new Date('2026-06-01')
         await addInventoryItems([{ ...validItem, expiresAt: expiry }])
 
-        const callData = mockCreateMany.mock.calls[0][0].data
-        expect(callData[0].expiresAt).toEqual(expiry)
+        const callData = mockCreate.mock.calls[0][0].data
+        expect(callData.expiresAt).toEqual(expiry)
     })
 
     it('rejects an empty array', async () => {
         await expect(addInventoryItems([])).rejects.toThrow(ZodError)
-        expect(mockCreateMany).not.toHaveBeenCalled()
+        expect(mockCreate).not.toHaveBeenCalled()
+        expect(mockUpdate).not.toHaveBeenCalled()
     })
 
     it('rejects a batch larger than 50 items', async () => {
@@ -96,7 +138,7 @@ describe('addInventoryItems', () => {
         }))
 
         await expect(addInventoryItems(oversizedBatch)).rejects.toThrow(ZodError)
-        expect(mockCreateMany).not.toHaveBeenCalled()
+        expect(mockCreate).not.toHaveBeenCalled()
     })
 
     it('rejects an item with an empty name', async () => {
@@ -142,14 +184,14 @@ describe('addInventoryItems', () => {
     })
 
     it('accepts exactly 50 items', async () => {
+        mockFindFirst.mockResolvedValue(null)
         const maxBatch = Array.from({ length: 50 }, (_, i) => ({
             ...validItem,
             name: `Item ${i}`,
         }))
 
         await addInventoryItems(maxBatch)
-        expect(mockCreateMany).toHaveBeenCalledOnce()
-        expect(mockCreateMany.mock.calls[0][0].data).toHaveLength(50)
+        expect(mockCreate).toHaveBeenCalledTimes(50)
     })
 })
 
@@ -171,6 +213,58 @@ describe('deleteInventoryItem', () => {
 
     it('rejects an id exceeding 100 characters', async () => {
         await expect(deleteInventoryItem('x'.repeat(101))).rejects.toThrow(ZodError)
+        expect(mockDelete).not.toHaveBeenCalled()
+    })
+})
+
+describe('consumeMeal', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    const ingredients = [
+        { name: 'Apples', quantity: 2 },
+        { name: 'Rice', quantity: 1 },
+    ]
+
+    it('decrements quantity for existing items', async () => {
+        mockFindFirst
+            .mockResolvedValueOnce({ id: 'apple-id', name: 'Apples', quantity: 5 })
+            .mockResolvedValueOnce({ id: 'rice-id', name: 'Rice', quantity: 10 })
+
+        const { consumeMeal } = await import('@/app/actions/inventory')
+        await consumeMeal(ingredients)
+
+        expect(mockUpdate).toHaveBeenCalledTimes(2)
+        expect(mockUpdate).toHaveBeenCalledWith({
+            where: { id: 'apple-id' },
+            data: { quantity: 3 }
+        })
+        expect(mockUpdate).toHaveBeenCalledWith({
+            where: { id: 'rice-id' },
+            data: { quantity: 9 }
+        })
+    })
+
+    it('deletes item if quantity reaches zero', async () => {
+        mockFindFirst.mockResolvedValue({ id: 'apple-id', name: 'Apples', quantity: 2 })
+
+        const { consumeMeal } = await import('@/app/actions/inventory')
+        await consumeMeal([{ name: 'Apples', quantity: 2 }])
+
+        expect(mockDelete).toHaveBeenCalledWith({
+            where: { id: 'apple-id' }
+        })
+        expect(mockUpdate).not.toHaveBeenCalled()
+    })
+
+    it('handles items not found gracefully', async () => {
+        mockFindFirst.mockResolvedValue(null)
+
+        const { consumeMeal } = await import('@/app/actions/inventory')
+        await consumeMeal(ingredients)
+
+        expect(mockUpdate).not.toHaveBeenCalled()
         expect(mockDelete).not.toHaveBeenCalled()
     })
 })

@@ -35,9 +35,9 @@ const DeleteItemSchema = z.object({
 export async function generateMealIdeas() {
     const inventory = await getInventory();
     const dict = await getDictionary();
-    
+
     if (inventory.length === 0) {
-        throw new Error(dict.errors.emptyPantry);
+        return { error: dict.errors.emptyPantry };
     }
 
     const inventoryList = inventory.map((item: InventoryItem) => `${item.name} (${item.quantity} ${item.unit})`).join(', ');
@@ -56,12 +56,20 @@ export async function generateMealIdeas() {
                     properties: {
                         name: { type: SchemaType.STRING },
                         description: { type: SchemaType.STRING },
-                        mainIngredients: { 
+                        ingredients: {
                             type: SchemaType.ARRAY,
-                            items: { type: SchemaType.STRING }
+                            items: {
+                                type: SchemaType.OBJECT,
+                                properties: {
+                                    name: { type: SchemaType.STRING },
+                                    quantityPerPerson: { type: SchemaType.NUMBER },
+                                    unit: { type: SchemaType.STRING }
+                                },
+                                required: ["name", "quantityPerPerson", "unit"]
+                            }
                         }
                     },
-                    required: ["name", "description", "mainIngredients"]
+                    required: ["name", "description", "ingredients"]
                 }
             }
         }
@@ -69,11 +77,44 @@ export async function generateMealIdeas() {
 
     const prompt = `Given the following grocery inventory: ${inventoryList}
 
-Suggest 3 balanced meal combos. Each combo should be a realistic pairing of items from the inventory (you can assume basic staples like oil, salt, pepper, and water are available).
-Keep the descriptions concise but appetizing. Focus on "meal combos" (e.g. Protein + Side + Vegetable) rather than complex recipes.`;
+Suggest 3 balanced meal combos. For each combo:
+1. Provide an appetizing name and brief description.
+2. List the specific inventory items used.
+3. For each item used, estimate the realistic quantity needed PER PERSON, using the EXACT name and unit provided in the inventory list.
+4. Assume basic staples (oil, salt, pepper) are available.
+
+Focus on "meal combos" (e.g. Protein + Side + Vegetable).`;
 
     const result = await model.generateContent(prompt);
     return JSON.parse(result.response.text());
+}
+
+export async function consumeMeal(ingredients: { name: string, quantity: number }[]) {
+    await prisma.$transaction(async (tx) => {
+        for (const ingredient of ingredients) {
+            const item = await tx.inventoryItem.findFirst({
+                where: { name: ingredient.name }
+            });
+
+            if (item) {
+                const newQuantity = Math.max(0, item.quantity - ingredient.quantity);
+
+                if (newQuantity <= 0) {
+                    await tx.inventoryItem.delete({
+                        where: { id: item.id }
+                    });
+                } else {
+                    await tx.inventoryItem.update({
+                        where: { id: item.id },
+                        data: { quantity: newQuantity }
+                    });
+                }
+            }
+        }
+    });
+
+    revalidatePath('/');
+    revalidatePath('/generator');
 }
 
 export async function getInventory() {
@@ -82,20 +123,56 @@ export async function getInventory() {
     });
 }
 
-export async function addInventoryItems(rawItems: {name: string, category: string, quantity: number, unit?: string, confidenceScore: number, expiresAt?: Date, minThreshold?: number}[]) {
+export async function addInventoryItems(rawItems: { name: string, category: string, quantity: number, unit?: string, confidenceScore: number, expiresAt?: Date, minThreshold?: number }[]) {
     const items = AddItemsSchema.parse(rawItems);
 
-    await prisma.inventoryItem.createMany({
-        data: items.map(item => ({
-            name: item.name,
-            category: item.category,
-            quantity: item.quantity,
-            unit: item.unit,
-            confidenceScore: item.confidenceScore,
-            expiresAt: item.expiresAt,
-            minThreshold: item.minThreshold,
-        }))
+    // 1. Aggregate items with the same name in the input batch to reduce DB calls.
+    // This handles cases where the same item appears multiple times in a single scan.
+    const itemMap = new Map<string, typeof items[number]>();
+    for (const item of items) {
+        const existing = itemMap.get(item.name);
+        if (existing) {
+            existing.quantity += item.quantity;
+        } else {
+            itemMap.set(item.name, { ...item });
+        }
+    }
+    const aggregatedItems = Array.from(itemMap.values());
+
+    // 2. Process items in a transaction to ensure atomicity.
+    // We check for existing items by name and update quantity if found, 
+    // otherwise create a new entry.
+    await prisma.$transaction(async (tx) => {
+        for (const item of aggregatedItems) {
+            const existingItem = await tx.inventoryItem.findFirst({
+                where: { name: item.name }
+            });
+
+            if (existingItem) {
+                await tx.inventoryItem.update({
+                    where: { id: existingItem.id },
+                    data: {
+                        quantity: {
+                            increment: item.quantity
+                        }
+                    }
+                });
+            } else {
+                await tx.inventoryItem.create({
+                    data: {
+                        name: item.name,
+                        category: item.category,
+                        quantity: item.quantity,
+                        unit: item.unit,
+                        confidenceScore: item.confidenceScore,
+                        expiresAt: item.expiresAt,
+                        minThreshold: item.minThreshold,
+                    }
+                });
+            }
+        }
     });
+
     // Purge the dashboard's server-side cache so new items appear immediately.
     revalidatePath('/');
 }
