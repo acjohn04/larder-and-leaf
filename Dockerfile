@@ -22,6 +22,7 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV DATABASE_URL="file:dev.db"
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -34,6 +35,8 @@ RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Next.js standalone output often fails to bundle native C++ modules
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
 # Copy prisma directory for database pushes/migrations
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 # Copy prisma config so the CLI knows where the DB is
