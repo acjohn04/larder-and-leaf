@@ -58,7 +58,7 @@ Open [http://localhost:3000](http://localhost:3000) to use the app.
 
 ## Docker & Deployment
 
-This project is configured for containerized deployment using a multi-stage Dockerfile and Docker Compose, optimized for environments like DigitalOcean App Platform or standard Droplets.
+This project is configured for containerized deployment using a multi-stage Dockerfile and Docker Compose, optimized for modern cloud platforms (e.g., Railway, DigitalOcean, Render).
 
 ### Local Deployment with Docker Compose
 
@@ -70,16 +70,16 @@ docker compose up --build
 
 The app will be available at `http://localhost:3000`.
 
-### DigitalOcean App Platform
+### Cloud Deployment (PaaS)
 
-To deploy this containerized application on DigitalOcean App Platform:
+To deploy this containerized application on a cloud platform:
 
-1. Connect your GitHub repository to a new App Platform app.
-2. App Platform will automatically detect the `Dockerfile` and switch to a container-based build.
-3. **CRITICAL FOR SQLITE**: To prevent data loss on every deployment, you must attach a **Volume** to your App component.
+1. Connect your GitHub repository to your chosen platform.
+2. The platform should automatically detect the `Dockerfile` and initiate a container-based build.
+3. **CRITICAL FOR SQLITE**: To prevent data loss on every deployment, you must attach a **Persistent Volume**.
    - Mount the volume to the container path `/app/data`.
    - Set the `DATABASE_URL` environment variable to `file:/app/data/prod.db`.
-4. Set the `GEMINI_API_KEY` environment variable in the App Platform settings.
+4. Set the `GEMINI_API_KEY` environment variable in the platform's settings.
 
 ## Project Structure
 

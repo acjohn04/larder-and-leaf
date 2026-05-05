@@ -13,7 +13,7 @@ const globalForPrisma = globalThis as unknown as {
 
 // Parse the file path from DATABASE_URL, defaulting to dev.db for local fallback
 const dbPath = process.env.DATABASE_URL 
-  ? process.env.DATABASE_URL.replace(/^file:/, '').replace(/^sqlite:/, '') 
+  ? process.env.DATABASE_URL.replace(/^(file|sqlite):(\/*)/, '$2') 
   : 'dev.db';
 
 const adapter = new PrismaBetterSqlite3({ url: dbPath })
