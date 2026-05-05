@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { generateMealIdeas, consumeMeal } from '../actions/inventory';
 import { useDictionary } from '@/components/DictionaryProvider';
 
@@ -26,7 +25,6 @@ export default function GeneratorPage() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const dict = useDictionary();
-    const router = useRouter();
 
     const handleGenerate = async () => {
         setIsLoading(true);

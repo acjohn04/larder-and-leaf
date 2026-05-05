@@ -161,7 +161,7 @@ Return an array of these JSON objects.`;
     let parsedItems = [];
     try {
       parsedItems = JSON.parse(text);
-    } catch (_e) {
+    } catch {
       console.error("Failed to parse JSON from Gemini", text);
       return NextResponse.json({ error: "Failed to process image. Please try again." }, { status: 500 });
     }
