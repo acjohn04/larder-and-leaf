@@ -53,7 +53,8 @@ export async function POST(req: Request) {
               confidence: 0.95,
               added_at: new Date().toISOString(),
               freshness_rating: 4,
-              status: "use_immediately"
+              status: "use_immediately",
+              min_threshold: 0.2
             }
           },
           {
@@ -67,7 +68,8 @@ export async function POST(req: Request) {
               confidence: 0.99,
               added_at: new Date().toISOString(),
               freshness_rating: 5,
-              status: "pantry"
+              status: "pantry",
+              min_threshold: 2.4
             }
           },
           {
@@ -81,7 +83,8 @@ export async function POST(req: Request) {
               confidence: 0.90,
               added_at: new Date().toISOString(),
               freshness_rating: 3,
-              status: "pantry"
+              status: "pantry",
+              min_threshold: 0.2
             }
           }
         ]
@@ -107,7 +110,7 @@ IMPORTANT: Do NOT include any drinks or beverages (e.g., soda, juice, water, alc
 For each item, provide a JSON object with:
 - uid: a generated string uuid
 - name: common name of the item
-- category: MUST be one of ["produce", "pantry", "dairy_eggs", "meat_seafood", "bakery", "frozen"]
+- category: MUST be one of ["produce", "pantry", "dairy_eggs", "meat_seafood", "bakery", "frozen", "prepared_meals"]
 - quantity: an object with "current" (number) and "unit" (string, e.g., "pieces", "oz", "lbs")
 - expires_in_days: an estimated number of days until the item expires based on its type and visual freshness (number)
 - metadata: an object with:
@@ -118,6 +121,7 @@ For each item, provide a JSON object with:
   - status: MUST be one of ["use_immediately", "pantry", "refrigerated", "frozen"]. 
     * Rule: If category is "frozen", status MUST be "frozen". 
     * Rule: If category is "pantry", status MUST be "pantry".
+  - min_threshold: a recommended low-stock trigger. Use 20% of the "current" quantity as a baseline, but adjust higher for pantry staples (e.g., 30-40%) and lower for highly perishable or specialty items (e.g., 0-10%) (number)
 
 Only return items you are >80% sure about. 
 Return an array of these JSON objects.`;
