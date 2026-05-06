@@ -16,6 +16,7 @@ interface IntakeItem {
     added_at: string;
     freshness_rating: number;
     status: string;
+    min_threshold: number;
   };
 }
 
@@ -91,7 +92,8 @@ export default function IntakePage() {
                     quantity: item.quantity.current,
                     unit: item.quantity.unit,
                     confidenceScore: item.metadata.confidence,
-                    expiresAt: expiresAt
+                    expiresAt: expiresAt,
+                    minThreshold: item.metadata.min_threshold
                 };
             });
             await addInventoryItems(itemsToSave);
@@ -233,6 +235,23 @@ export default function IntakePage() {
                                                          placeholder="Unit"
                                                      />
                                                  </div>
+                                                 <div className="flex flex-col space-y-1">
+                                                     <label className="text-[10px] uppercase tracking-wider font-bold text-on-surface-variant ml-1">Min Threshold</label>
+                                                     <input 
+                                                         type="number" 
+                                                         step="0.1"
+                                                         value={editForm.metadata?.min_threshold === undefined ? '' : editForm.metadata.min_threshold} 
+                                                         onChange={(e) => setEditForm({
+                                                             ...editForm, 
+                                                             metadata: { 
+                                                                 ...editForm.metadata!, 
+                                                                 min_threshold: parseFloat(e.target.value) || 0 
+                                                             }
+                                                         })}
+                                                         className="w-full bg-surface-container border border-outline-variant/30 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-on-surface"
+                                                         placeholder="Min Threshold"
+                                                     />
+                                                 </div>
                                                  <select
                                                      value={editForm.category || ''}
                                                      onChange={(e) => setEditForm({...editForm, category: e.target.value})}
@@ -262,6 +281,9 @@ export default function IntakePage() {
                                                      <div className="flex flex-col items-end">
                                                          <span className="text-xs bg-secondary-container text-on-secondary-container px-2 py-1 rounded-md font-medium">
                                                              {item.quantity.current} {item.quantity.unit}
+                                                         </span>
+                                                         <span className="text-[10px] text-on-surface-variant mt-1">
+                                                             Min: {item.metadata.min_threshold} {item.quantity.unit}
                                                          </span>
                                                      </div>
                                                  </div>

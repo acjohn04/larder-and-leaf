@@ -9,6 +9,7 @@ export default function AddItemModal({ isOpen, onClose }: { isOpen: boolean, onC
     const [category, setCategory] = useState('pantry')
     const [quantity, setQuantity] = useState(1)
     const [unit, setUnit] = useState('units')
+    const [minThreshold, setMinThreshold] = useState(0.2) // Default to 0.2 for 1 unit
     const [isSaving, setIsSaving] = useState(false)
     const dict = useDictionary()
 
@@ -23,12 +24,14 @@ export default function AddItemModal({ isOpen, onClose }: { isOpen: boolean, onC
                 category,
                 quantity,
                 unit,
-                confidenceScore: 1.0 // Manual entry is 100% confident
+                confidenceScore: 1.0, // Manual entry is 100% confident
+                minThreshold
             }])
             setName('')
             setCategory('pantry')
             setQuantity(1)
             setUnit('units')
+            setMinThreshold(0.2)
             onClose()
         } catch (error) {
             console.error('Failed to add item:', error)
@@ -99,6 +102,24 @@ export default function AddItemModal({ isOpen, onClose }: { isOpen: boolean, onC
                             <option value="bakery">{dict.categories.bakery}</option>
                             <option value="frozen">{dict.categories.frozen}</option>
                         </select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Min Threshold (Low Stock Alert)</label>
+                        <div className="relative">
+                            <input 
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                value={minThreshold}
+                                onChange={(e) => setMinThreshold(parseFloat(e.target.value) || 0)}
+                                className="w-full px-6 py-4 bg-surface-container-low rounded-2xl border-none outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium pr-16"
+                            />
+                            <div className="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-bold text-on-surface-variant/50 pointer-events-none uppercase tracking-tighter">
+                                {unit}
+                            </div>
+                        </div>
+                        <p className="text-[10px] text-on-surface-variant/70 ml-2 italic">Defaulted to 20% of quantity.</p>
                     </div>
 
                     <button 

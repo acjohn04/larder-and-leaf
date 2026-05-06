@@ -133,6 +133,9 @@ export async function addInventoryItems(rawItems: { name: string, category: stri
         const existing = itemMap.get(item.name);
         if (existing) {
             existing.quantity += item.quantity;
+            if (item.minThreshold !== undefined) {
+                existing.minThreshold = (existing.minThreshold ?? 0) + item.minThreshold;
+            }
         } else {
             itemMap.set(item.name, { ...item });
         }

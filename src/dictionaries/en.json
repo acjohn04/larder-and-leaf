@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "Larder & Leaf",
-    "description": "The Digital Market Stand"
+    "description": "The Digital Pantry"
   },
   "sidebar": {
     "heading": "The Pantry",
@@ -60,7 +60,8 @@
     "dairy_eggs": "Dairy & Eggs",
     "meat_seafood": "Meat & Seafood",
     "bakery": "Bakery",
-    "frozen": "Frozen"
+    "frozen": "Frozen",
+    "prepared_meals": "Prepared Meals"
   },
   "intake": {
     "title": "Intake Scanner",
@@ -68,7 +69,7 @@
     "dropHeading": "Drop receipt or photo here",
     "dropSubtext": "or click to browse from your device",
     "analyzingHeading": "Analyzing image...",
-    "analyzingSubtext": "Gemini is identifying items...",
+    "analyzingSubtext": "Chef is identifying items...",
     "selectFile": "Select file",
     "processing": "Processing...",
     "analyzingPanel": "Analyzing...",
@@ -89,8 +90,8 @@
   },
   "generator": {
     "title": "Menu Generator",
-    "subtitle": "Intelligent pairings based on your freshly-stocked larder.",
-    "loading": "Consulting Chef Gemini...",
+    "subtitle": "Intelligent pairings based on your freshly-stocked pantry.",
+    "loading": "Consulting the Chef...",
     "generate": "Generate New Ideas",
     "keyIngredients": "Ingredients Used",
     "emptyTitle": "No menus yet",
