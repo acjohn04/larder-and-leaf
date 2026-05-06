@@ -1,4 +1,4 @@
-# Design System Specification: The Organic Curator
+# Design System Specification: Larder & Leaf
 
 This design system is a bespoke framework crafted for a premium grocery inventory experience. It moves away from the sterile, rigid grids of traditional utility apps, instead embracing an "Editorial Pantry" aesthetic. By prioritizing tonal depth over structural lines and using a sophisticated, nature-inspired palette, we create an interface that feels as fresh as the produce it tracks.
 
@@ -32,8 +32,8 @@ Treat the UI as a physical stack of fine paper.
 
 To elevate the app beyond a standard utility:
 
-- **Floating Elements:** Use Glassmorphism for navigation bars or floating action buttons. Apply a semi-transparent `surface` color with a 20px backdrop-blur.
-- **Signature Textures:** For primary CTAs (e.g., "Add to Cart"), use a subtle linear gradient from `primary` (#006949) to `primary_dim` (#005b3f) at a 135-degree angle. This adds "soul" and depth that flat color cannot replicate.
+- **Floating Elements:** Use Glassmorphism for navigation bars. Apply a semi-transparent `surface` color with a 20px backdrop-blur.
+- **Signature Textures:** For primary CTAs (e.g., "Add Receipt"), use a subtle linear gradient from `primary` (#006949) to `primary_dim` (#005b3f) at a 135-degree angle. This adds "soul" and depth that flat color cannot replicate.
 
 ---
 
@@ -81,14 +81,14 @@ If an edge _must_ be defined for accessibility, use the `outline_variant` (#acad
 
 ### Buttons
 
-- **Primary:** Gradient fill (`primary` to `primary_dim`), `xl` (1.5rem) rounded corners. Tactile, pill-shaped.
+- **Primary:** Gradient fill (`primary` to `primary_dim`), full round (pill-shaped) corners. Highly tactile.
 - **Secondary:** `surface-container-high` (#e0e3e2) background with `on_primary_container` (#006042) text.
 - **Tertiary:** Ghost style—no background, only `title-sm` typography in `primary` color.
 
 ### Inventory Cards
 
-- **Construction:** Use `surface-container-lowest` (#ffffff) with `md` (0.75rem) rounded corners.
-- **Spacing:** Use `spacing-4` (1rem) internal padding.
+- **Construction:** Use `surface-container-low` (#eff1f0) with `2xl` (1rem) rounded corners.
+- **Spacing:** Use `spacing-5` (1.25rem) internal padding.
 - **Rule:** **No dividers.** Separate "Item Name" from "Quantity" using a vertical `spacing-2` (0.5rem) gap.
 
 ### Input Fields
@@ -97,9 +97,9 @@ If an edge _must_ be defined for accessibility, use the `outline_variant` (#acad
 - **Active State:** Shift background to `surface-container-lowest` (#ffffff) and apply a "Ghost Border" of `primary` at 20% opacity.
 - **Error:** Background shifts to `on_error` (#ffefee) with text in `error` (#b31b25).
 
-### Global Search (Specialty Component)
+### Search Bar (Integrated)
 
-A top-anchored bar using **Glassmorphism**. A semi-transparent `surface_bright` with a heavy backdrop blur allows the colors of the grocery list to peek through as the user scrolls, maintaining a sense of place.
+Instead of a hidden global search, the search bar is integrated into the dashboard's filter row. It uses a pill-shaped `surface-container-low` background with a subtle focus ring, ensuring it feels like a native part of the inventory browsing experience.
 
 ---
 
