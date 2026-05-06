@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { genAI } from "@/lib/gemini";
 
 // --- Upload constraints ---
-// These guard against oversized payloads and non-image file types
+// These guard against oversized payloads and non-supported file types
 // before any Gemini API call is made.
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_MIME_TYPES = [
@@ -11,19 +11,19 @@ const ALLOWED_MIME_TYPES = [
   "image/webp",
   "image/heic",
   "image/heif",
+  "application/pdf",
 ];
 
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
-    const imageFile = formData.get("image") as File;
-
-    if (!imageFile) {
-      return NextResponse.json({ error: "No image provided" }, { status: 400 });
+    const file = formData.get("image") as File;
+    if (!file) {
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
     // Validate file size
-    if (imageFile.size > MAX_FILE_SIZE) {
+    if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: "File too large. Maximum size is 10 MB." },
         { status: 413 }
@@ -31,9 +31,9 @@ export async function POST(req: Request) {
     }
 
     // Validate MIME type
-    if (!ALLOWED_MIME_TYPES.includes(imageFile.type)) {
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: "Invalid file type. Accepted formats: JPEG, PNG, WebP, HEIC." },
+        { error: "Invalid file type. Accepted formats: JPEG, PNG, WebP, HEIC, PDF." },
         { status: 415 }
       );
     }
@@ -101,10 +101,10 @@ export async function POST(req: Request) {
     });
 
     // Convert File to base64
-    const arrayBuffer = await imageFile.arrayBuffer();
-    const base64Image = Buffer.from(arrayBuffer).toString("base64");
+    const arrayBuffer = await file.arrayBuffer();
+    const base64Content = Buffer.from(arrayBuffer).toString("base64");
 
-    const prompt = `Analyze the provided image. Identify all food items.
+    const prompt = `Analyze the provided file (image or PDF). Identify all food items.
 IMPORTANT: Do NOT include any drinks or beverages (e.g., soda, juice, water, alcohol, coffee, tea). Focus exclusively on solid food items and cooking ingredients.
 
 For each item, provide a JSON object with:
@@ -133,14 +133,14 @@ Return an array of these JSON objects.`;
     let result;
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`Processing image upload. Name: ${imageFile.name}, Type: ${imageFile.type}, Size: ${imageFile.size}`);
+        console.log(`Processing file upload. Name: ${file.name}, Type: ${file.type}, Size: ${file.size}`);
         
         result = await model.generateContent([
           prompt,
           {
             inlineData: {
-              data: base64Image,
-              mimeType: imageFile.type,
+              data: base64Content,
+              mimeType: file.type,
             },
           },
         ]);
@@ -156,7 +156,7 @@ Return an array of these JSON objects.`;
     }
 
     if (!result) {
-        return NextResponse.json({ error: "Failed to process image. Please try again." }, { status: 500 });
+        return NextResponse.json({ error: "Failed to process file. Please try again." }, { status: 500 });
     }
 
     // Even with responseMimeType set to JSON, Gemini can occasionally
@@ -167,14 +167,14 @@ Return an array of these JSON objects.`;
       parsedItems = JSON.parse(text);
     } catch {
       console.error("Failed to parse JSON from Gemini", text);
-      return NextResponse.json({ error: "Failed to process image. Please try again." }, { status: 500 });
+      return NextResponse.json({ error: "Failed to process file. Please try again." }, { status: 500 });
     }
 
     return NextResponse.json({ items: parsedItems });
   } catch (error: unknown) {
     console.error("Vision API Error:", error);
     return NextResponse.json(
-      { error: "Failed to process image. Please try again." },
+      { error: "Failed to process file. Please try again." },
       { status: 500 }
     );
   }

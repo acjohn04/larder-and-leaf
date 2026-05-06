@@ -66,14 +66,14 @@
   "intake": {
     "title": "Intake Scanner",
     "subtitle": "Digitize your grocery receipts or fresh produce and instantly update your inventory.",
-    "dropHeading": "Drop receipt or photo here",
+    "dropHeading": "Drop receipt, photo, or PDF here",
     "dropSubtext": "or click to browse from your device",
-    "analyzingHeading": "Analyzing image...",
+    "analyzingHeading": "Analyzing file...",
     "analyzingSubtext": "Chef is identifying items...",
     "selectFile": "Select file",
     "processing": "Processing...",
     "analyzingPanel": "Analyzing...",
-    "analyzingPanelSubtext": "Looking for food items in your image.",
+    "analyzingPanelSubtext": "Looking for food items in your file.",
     "identifiedItems": "Identified Items",
     "itemsCount": "{count} items",
     "confidenceSuffix": "sure",
@@ -82,7 +82,7 @@
     "savedTitle": "Saved Successfully!",
     "savedSubtext": "Your items have been added to the inventory.",
     "emptyTitle": "No items scanned yet",
-    "emptySubtext": "Upload an image to see recognized items here.",
+    "emptySubtext": "Upload an image or PDF to see recognized items here.",
     "editItem": "Edit",
     "deleteItem": "Delete",
     "saveItem": "Save",
@@ -105,7 +105,7 @@
   "errors": {
     "emptyPantry": "Your pantry is empty. Add some items first!",
     "generateFailed": "Failed to generate ideas. Make sure you have items in your inventory!",
-    "analysisFailed": "Failed to analyze image",
+    "analysisFailed": "Failed to analyze file",
     "saveFailed": "Failed to save items to inventory.",
     "consumeFailed": "Failed to update inventory. Please try again."
   }
