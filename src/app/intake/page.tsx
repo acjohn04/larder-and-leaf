@@ -38,7 +38,7 @@ export default function IntakePage() {
     };
 
     // Triggered by the hidden <input> when the user selects a file.
-    // Sends the image to the Vision API as multipart form data.
+    // Sends the file to the Vision API as multipart form data.
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -63,7 +63,7 @@ export default function IntakePage() {
                 const data = await response.json();
                 setScannedItems(data.items || []);
             } catch (err: unknown) {
-                console.error("Error analyzing image:", err);
+                console.error("Error analyzing file:", err);
                 setError(err instanceof Error ? err.message : dict.errors.analysisFailed);
             } finally {
                 setIsAnalyzing(false);
@@ -163,7 +163,7 @@ export default function IntakePage() {
                             className="hidden" 
                             ref={fileInputRef} 
                             onChange={handleFileChange} 
-                            accept="image/*"
+                            accept="image/*,application/pdf"
                             disabled={isAnalyzing}
                         />
                         <div className="flex flex-col items-center justify-center space-y-4">
