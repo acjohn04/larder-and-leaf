@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useIsClient } from '@/lib/hooks'
+import { createPortal } from 'react-dom'
 import { addInventoryItems } from '@/app/actions/inventory'
 import { useDictionary } from './DictionaryProvider'
 
@@ -11,9 +13,10 @@ export default function AddItemModal({ isOpen, onClose }: { isOpen: boolean, onC
     const [unit, setUnit] = useState('units')
     const [minThreshold, setMinThreshold] = useState(0.2) // Default to 0.2 for 1 unit
     const [isSaving, setIsSaving] = useState(false)
+    const isClient = useIsClient()
     const dict = useDictionary()
 
-    if (!isOpen) return null
+    if (!isClient || !isOpen) return null
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -41,7 +44,7 @@ export default function AddItemModal({ isOpen, onClose }: { isOpen: boolean, onC
         }
     }
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-surface-container-lowest w-full max-w-md rounded-[2.5rem] shadow-ambient-lg p-8 animate-in zoom-in-95 duration-200">
                 <div className="flex justify-between items-center mb-8">
@@ -138,6 +141,7 @@ export default function AddItemModal({ isOpen, onClose }: { isOpen: boolean, onC
                     </button>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }

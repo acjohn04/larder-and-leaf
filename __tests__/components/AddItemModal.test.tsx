@@ -88,6 +88,7 @@ describe('AddItemModal', () => {
           quantity: 1,
           unit: 'units',
           confidenceScore: 1.0,
+          minThreshold: 0.2,
         },
       ])
     })

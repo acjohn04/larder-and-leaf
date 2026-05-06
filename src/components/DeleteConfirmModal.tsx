@@ -1,5 +1,7 @@
 'use client'
 
+import { useIsClient } from '@/lib/hooks'
+import { createPortal } from 'react-dom'
 import { useDictionary } from './DictionaryProvider'
 
 export default function DeleteConfirmModal({
@@ -13,13 +15,14 @@ export default function DeleteConfirmModal({
     onConfirm: () => void,
     itemName?: string
 }) {
+    const isClient = useIsClient()
     const dict = useDictionary()
 
-    if (!isOpen) return null
+    if (!isClient || !isOpen) return null
 
     const displayName = itemName || dict.deleteModal.fallbackName
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-surface-container-lowest w-full max-w-sm rounded-[2.5rem] shadow-ambient-lg p-8 animate-in zoom-in-95 duration-200">
                 <div className="flex flex-col items-center text-center">
@@ -48,6 +51,7 @@ export default function DeleteConfirmModal({
                     </div>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }
