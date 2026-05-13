@@ -12,8 +12,8 @@ The dashboard is the landing page and primary inventory view. It is a **server c
 URL search params (?q=...&category=...)
         │
         ▼
-  Server Component
-  ├── getInventory()      →  Prisma query (all items, ordered by addedAt desc)
+   Server Component
+   ├── getInventory()      →  Prisma query (user-scoped via requireAuth(), ordered by addedAt desc)
   ├── getDictionary()     →  i18n strings
   ├── Search filter       →  Client-side name/category substring match (reads ?q)
   └── Category filter     →  Exact match on category field (reads ?category)
@@ -65,8 +65,8 @@ When no items match the current filters, a centered empty-state panel is shown w
 
 ## Key Components Used
 
-| Component        | Role                                                                      |
-| ---------------- | ------------------------------------------------------------------------- |
-| `CategoryFilter` | Combined search input and category toggle buttons; manages URL params     |
-| `DeleteButton`   | Triggers `DeleteConfirmModal` → calls `deleteInventoryItem` server action |
-| `TopNav`         | Global navigation bar containing the brand logo and i18n context          |
+| Component        | Role                                                                            |
+| ---------------- | ------------------------------------------------------------------------------- |
+| `CategoryFilter` | Combined search input and category toggle buttons; manages URL params           |
+| `DeleteButton`   | Triggers `DeleteConfirmModal` → calls `deleteInventoryItem` server action       |
+| `TopNav`         | Global navigation bar with brand logo and Sign Out button (hidden in demo mode) |

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { genAI } from "@/lib/gemini";
+import { requireAuth } from "@/lib/auth";
 
 // --- Upload constraints ---
 // These guard against oversized payloads and non-supported file types
@@ -16,6 +17,8 @@ const ALLOWED_MIME_TYPES = [
 
 export async function POST(req: Request) {
   try {
+    // Verify the user is authenticated before processing
+    await requireAuth();
     const formData = await req.formData();
     const file = formData.get("image") as File;
     if (!file) {

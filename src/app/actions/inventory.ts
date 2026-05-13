@@ -7,6 +7,7 @@ import { genAI } from '@/lib/gemini'
 import { prisma } from '@/lib/prisma'
 import { getDictionary } from '@/dictionaries'
 import { InventoryItem } from '@prisma/client'
+import { auth, requireAuth } from '@/lib/auth'
 
 // --- Validation Schemas ---
 // All server action inputs pass through Zod before touching the database.
@@ -90,10 +91,12 @@ Focus on "meal combos" (e.g. Protein + Side + Vegetable).`;
 }
 
 export async function consumeMeal(ingredients: { name: string, quantity: number }[]) {
+    const userId = await requireAuth();
+
     await prisma.$transaction(async (tx) => {
         for (const ingredient of ingredients) {
             const item = await tx.inventoryItem.findFirst({
-                where: { name: ingredient.name }
+                where: { name: ingredient.name, userId }
             });
 
             if (item) {
@@ -118,12 +121,20 @@ export async function consumeMeal(ingredients: { name: string, quantity: number 
 }
 
 export async function getInventory() {
+    // Read operations degrade gracefully — return empty if not logged in.
+    // Write operations (add/delete/consume) use requireAuth() which throws.
+    const session = await auth();
+    if (!session?.user?.id) return [];
+    
     return prisma.inventoryItem.findMany({
+        where: { userId: session.user.id },
         orderBy: { addedAt: 'desc' }
     });
 }
 
 export async function addInventoryItems(rawItems: { name: string, category: string, quantity: number, unit?: string, confidenceScore: number, expiresAt?: Date, minThreshold?: number }[]) {
+    const userId = await requireAuth();
+
     const items = AddItemsSchema.parse(rawItems);
 
     // 1. Aggregate items with the same name in the input batch to reduce DB calls.
@@ -148,7 +159,7 @@ export async function addInventoryItems(rawItems: { name: string, category: stri
     await prisma.$transaction(async (tx) => {
         for (const item of aggregatedItems) {
             const existingItem = await tx.inventoryItem.findFirst({
-                where: { name: item.name }
+                where: { name: item.name, userId }
             });
 
             if (existingItem) {
@@ -170,6 +181,7 @@ export async function addInventoryItems(rawItems: { name: string, category: stri
                         confidenceScore: item.confidenceScore,
                         expiresAt: item.expiresAt,
                         minThreshold: item.minThreshold,
+                        userId: userId,
                     }
                 });
             }
@@ -181,10 +193,14 @@ export async function addInventoryItems(rawItems: { name: string, category: stri
 }
 
 export async function deleteInventoryItem(rawId: string) {
+    const userId = await requireAuth();
+
+
     const { id } = DeleteItemSchema.parse({ id: rawId });
 
-    await prisma.inventoryItem.delete({
-        where: { id }
+    // Ensure they can only delete their own item
+    await prisma.inventoryItem.deleteMany({
+        where: { id, userId }
     });
     revalidatePath('/');
 }
