@@ -89,9 +89,15 @@ larder-and-leaf/
 │   └── schema.prisma          # Database schema (InventoryItem model)
 ├── src/
 │   ├── app/
+│   │   ├── (auth)/
+│   │   │   ├── layout.tsx     # Minimal layout for authentication
+│   │   │   └── login/
+│   │   │       └── page.tsx   # Login page
 │   │   ├── actions/
 │   │   │   └── inventory.ts   # Server actions (CRUD + meal generation)
 │   │   ├── api/
+│   │   │   ├── auth/          # NextAuth API endpoints
+│   │   │   │   └── [...nextauth]/route.ts
 │   │   │   └── vision/
 │   │   │       └── route.ts   # POST endpoint for image analysis
 │   │   ├── generator/
@@ -103,6 +109,7 @@ larder-and-leaf/
 │   │   └── page.tsx           # Dashboard / inventory overview
 │   ├── components/
 │   │   ├── AddItemModal.tsx   # Manual item entry form
+│   │   ├── AuthSessionProvider.tsx # NextAuth session context provider
 │   │   ├── CategoryFilter.tsx # URL-param-based category filters
 │   │   ├── DeleteButton.tsx   # Inline delete with confirmation
 │   │   ├── DeleteConfirmModal.tsx
@@ -111,13 +118,18 @@ larder-and-leaf/
 │   │   ├── Sidebar.tsx        # Desktop navigation sidebar
 │   │   └── TopNav.tsx         # Top bar with search
 │   ├── constants/
-│   │   └── navigation.ts     # Shared nav item definitions
+│   │   └── navigation.ts      # Shared nav item definitions
 │   ├── dictionaries/
 │   │   ├── en.json            # English string dictionary
 │   │   └── index.ts           # Dictionary loader + types
-│   └── lib/
-│       ├── gemini.ts          # Gemini AI client singleton
-│       └── prisma.ts          # Prisma client singleton
+│   ├── lib/
+│   │   ├── auth.ts            # Auth helper functions (requireAuth, DEMO_MODE)
+│   │   ├── gemini.ts          # Gemini AI client singleton
+│   │   ├── hooks.ts           # Custom React hooks
+│   │   └── prisma.ts          # Prisma client singleton
+│   ├── auth.ts                # NextAuth core configuration
+│   ├── env.ts                 # Environment variable validation
+│   └── proxy.ts               # Next.js 16 proxy for unauthenticated redirects
 ├── __tests__/                 # Vitest unit + integration tests
 ├── docs/                      # Page-level documentation
 │   ├── design.md              # Design system specification
@@ -146,6 +158,7 @@ Page-level documentation lives in the [`docs/`](docs/) directory:
 - [Dashboard](docs/dashboard.md) — Inventory overview, search, filters, and stat cards
 - [Intake Scanner](docs/intake.md) — Image upload, Gemini Vision integration, and item saving
 - [Menu Generator](docs/generator.md) — AI meal suggestion generation flow
+- [Authentication](docs/auth.md) — Authentication system
 
 ## License
 
