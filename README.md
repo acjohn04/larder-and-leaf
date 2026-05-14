@@ -48,11 +48,31 @@ npm run dev
 
 ### Environment Variables
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root. You can copy `.env.example` as a template.
 
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
-```
+#### Core Configuration
+
+| Variable         | Description                                                                                        | Default         |
+| :--------------- | :------------------------------------------------------------------------------------------------- | :-------------- |
+| `GEMINI_API_KEY` | **Required**. Your Google Gemini API key from [AI Studio](https://aistudio.google.com/app/apikey). | -               |
+| `DATABASE_URL`   | Prisma connection string for the database.                                                         | `file:./dev.db` |
+
+#### Authentication
+
+| Variable             | Description                                                                                |
+| :------------------- | :----------------------------------------------------------------------------------------- |
+| `AUTH_SECRET`        | A random string used to sign session cookies. Generate one with `openssl rand -base64 32`. |
+| `AUTH_GITHUB_ID`     | GitHub OAuth application Client ID.                                                        |
+| `AUTH_GITHUB_SECRET` | GitHub OAuth application Client Secret.                                                    |
+| `AUTH_GOOGLE_ID`     | Google Cloud Console OAuth Client ID.                                                      |
+| `AUTH_GOOGLE_SECRET` | Google Cloud Console OAuth Client Secret.                                                  |
+
+#### Development Flags
+
+| Variable          | Description                                                                 | Default |
+| :---------------- | :-------------------------------------------------------------------------- | :------ |
+| `DEMO_MODE`       | If `true`, bypasses real authentication and uses a local "Demo User".       | `false` |
+| `USE_MOCK_GEMINI` | If `true`, returns mock JSON from the Vision API instead of calling Gemini. | `false` |
 
 Open [http://localhost:3000](http://localhost:3000) to use the app.
 
