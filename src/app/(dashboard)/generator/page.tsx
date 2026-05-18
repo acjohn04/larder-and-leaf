@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { generateMealIdeas, consumeMeal } from '../actions/inventory';
+import { generateMealIdeas, consumeMeal } from '@/app/actions/inventory';
 import { useDictionary } from '@/components/DictionaryProvider';
 
 interface IngredientUsage {

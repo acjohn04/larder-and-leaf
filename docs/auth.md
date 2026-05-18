@@ -99,6 +99,7 @@ NEXT_PUBLIC_DEMO_MODE=true
 | Variable                | Required | Description                                                             |
 | ----------------------- | -------- | ----------------------------------------------------------------------- |
 | `AUTH_SECRET`           | Yes      | Secret key for signing JWTs. Generate with `npx auth secret`.           |
+| `AUTH_TRUST_HOST`       | Prod     | Set to `"true"` to trust incoming host headers in Docker/proxied setups |
 | `AUTH_GOOGLE_ID`        | No\*     | Google OAuth Client ID                                                  |
 | `AUTH_GOOGLE_SECRET`    | No\*     | Google OAuth Client Secret                                              |
 | `AUTH_GITHUB_ID`        | No\*     | GitHub OAuth Client ID                                                  |
