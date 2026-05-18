@@ -15,10 +15,21 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  inventory     InventoryItem[]
+  
+  householdId   String?
+  household     Household?      @relation(fields: [householdId], references: [id])
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Household {
+  id            String          @id @default(cuid())
+  name          String          @default("My Household")
+  inviteCode    String          @unique @default(cuid())
+  users         User[]
+  inventory     InventoryItem[]
+  createdAt     DateTime        @default(now())
 }
 
 model Account {
@@ -73,6 +84,6 @@ model InventoryItem {
   minThreshold    Float     @default(0)
   addedAt         DateTime  @default(now())
 
-  userId          String
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  householdId     String
+  household       Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
 }

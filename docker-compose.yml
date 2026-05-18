@@ -1,10 +1,10 @@
-version: '3.8'
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_DEMO_MODE: ${NEXT_PUBLIC_DEMO_MODE:-false}
     ports:
       - "3000:3000"
     environment:
@@ -13,6 +13,17 @@ services:
       # Pass the API key from the host's .env file
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - USE_MOCK_GEMINI=${USE_MOCK_GEMINI:-false}
+      # Demo mode flags
+      - DEMO_MODE=${DEMO_MODE:-false}
+      - NEXT_PUBLIC_DEMO_MODE=${NEXT_PUBLIC_DEMO_MODE:-false}
+      # Authentication (Auth.js)
+      - AUTH_TRUST_HOST=${AUTH_TRUST_HOST:-true}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_URL=${AUTH_URL:-http://localhost:3000}
+      - AUTH_GITHUB_ID=${AUTH_GITHUB_ID}
+      - AUTH_GITHUB_SECRET=${AUTH_GITHUB_SECRET}
+      - AUTH_GOOGLE_ID=${AUTH_GOOGLE_ID}
+      - AUTH_GOOGLE_SECRET=${AUTH_GOOGLE_SECRET}
     volumes:
       # Mount a local directory to persist the SQLite database
       - larder_data:/app/data

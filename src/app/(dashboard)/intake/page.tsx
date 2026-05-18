@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from 'react';
-import { addInventoryItems } from '../actions/inventory';
+import { addInventoryItems } from '@/app/actions/inventory';
 import { useDictionary } from '@/components/DictionaryProvider';
 
 interface IntakeItem {

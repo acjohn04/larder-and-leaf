@@ -3,7 +3,12 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  resolve: { tsconfigPaths: true },
+  resolve: { 
+    tsconfigPaths: true,
+    alias: {
+      'next/server': 'next/server.js',
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

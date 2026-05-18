@@ -13,8 +13,12 @@ export const { handlers, signIn, signOut, auth: nextAuth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   providers: [
-    GitHub,
-    Google,
+    GitHub({
+      allowDangerousEmailAccountLinking: true,
+    }),
+    Google({
+      allowDangerousEmailAccountLinking: true,
+    }),
   ],
   pages: {
     signIn: "/login",

@@ -12,11 +12,10 @@ const DEMO_USER = {
  * Returns the current session, or a synthetic demo session when
  * DEMO_MODE is enabled.  On the first demo-mode call the demo user
  * is upserted into the database so foreign-key constraints on
- * InventoryItem.userId are satisfied.
+ * InventoryItem.householdId are satisfied.
  */
 export async function auth(): Promise<Session | null> {
   if (process.env.DEMO_MODE === "true") {
-    // Ensure the demo user exists in the DB (idempotent upsert).
     await prisma.user.upsert({
       where: { id: DEMO_USER.id },
       update: {},
@@ -24,6 +23,11 @@ export async function auth(): Promise<Session | null> {
         id: DEMO_USER.id,
         name: DEMO_USER.name,
         email: DEMO_USER.email,
+        household: {
+          create: {
+            name: "Demo Household",
+          }
+        }
       },
     })
 
@@ -44,12 +48,39 @@ export async function auth(): Promise<Session | null> {
  * Convenience wrapper that throws if the user isn't authenticated.
  * Use this at the top of every server action / API route that mutates data.
  *
- * Returns the authenticated userId so callers can scope DB queries.
+ * Returns the authenticated user's householdId so callers can scope DB queries.
+ * If the user does not have a household yet, one is created automatically.
  */
 export async function requireAuth(): Promise<string> {
   const session = await auth()
   if (!session?.user?.id) {
     throw new Error("Unauthorized")
   }
-  return session.user.id
+  
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true, name: true, householdId: true }
+  })
+  
+  if (!user) {
+    throw new Error("User not found")
+  }
+  
+  if (user.householdId) {
+    return user.householdId
+  }
+  
+  // Auto-create a household if the user doesn't have one
+  const household = await prisma.household.create({
+    data: {
+      name: `${user.name || "My"} Household`
+    }
+  })
+  
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { householdId: household.id }
+  })
+  
+  return household.id
 }

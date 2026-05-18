@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { getInventory } from './actions/inventory';
-import DeleteButton from '../components/DeleteButton';
-import CategoryFilter from '../components/CategoryFilter';
+import { getInventory } from '@/app/actions/inventory';
+import DeleteButton from '@/components/DeleteButton';
+import CategoryFilter from '@/components/CategoryFilter';
 import { getDictionary } from '@/dictionaries';
 import { InventoryItem } from '@prisma/client';
 
