@@ -28,6 +28,7 @@ vi.mock('@/lib/prisma', () => ({
         })),
         inventoryItem: {
             delete: (...args: unknown[]) => mockDelete(...args),
+            deleteMany: (...args: unknown[]) => mockDelete(...args),
             findMany: (...args: unknown[]) => mockFindMany(...args),
         },
     },
@@ -45,6 +46,12 @@ vi.mock('@/dictionaries', () => ({
     getDictionary: vi.fn().mockResolvedValue({
         errors: { emptyPantry: 'Pantry is empty' },
     }),
+}))
+
+// Mock auth
+vi.mock('@/lib/auth', () => ({
+    requireAuth: vi.fn().mockResolvedValue('mock-household-id'),
+    auth: vi.fn().mockResolvedValue({ user: { id: 'mock-user-id' } }),
 }))
 
 import { addInventoryItems, deleteInventoryItem } from '@/app/actions/inventory'
@@ -95,7 +102,7 @@ describe('addInventoryItems', () => {
 
         // Should only call findFirst once for 'Banana' because they are aggregated
         expect(mockFindFirst).toHaveBeenCalledOnce()
-        expect(mockFindFirst).toHaveBeenCalledWith({ where: { name: 'Banana' } })
+        expect(mockFindFirst).toHaveBeenCalledWith({ where: { name: 'Banana', householdId: 'mock-household-id' } })
         
         // Should call create once with combined quantity 5
         expect(mockCreate).toHaveBeenCalledOnce()
@@ -203,7 +210,7 @@ describe('deleteInventoryItem', () => {
     it('accepts a valid id and calls Prisma', async () => {
         await deleteInventoryItem('clx123abc')
 
-        expect(mockDelete).toHaveBeenCalledWith({ where: { id: 'clx123abc' } })
+        expect(mockDelete).toHaveBeenCalledWith({ where: { id: 'clx123abc', householdId: 'mock-household-id' } })
     })
 
     it('rejects an empty id', async () => {

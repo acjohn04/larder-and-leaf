@@ -8,8 +8,8 @@ This document describes the authentication architecture for Larder & Leaf.
 
 Authentication is handled by **Auth.js** (NextAuth v5) with the **Prisma Adapter**, storing user and session data directly in the application's SQLite database. The system supports two modes of operation:
 
-1. **Authenticated Mode** — Users sign in via OAuth (Google or GitHub). All routes are protected and data is scoped per-user.
-2. **Demo Mode** — Enabled via `DEMO_MODE=true`. Bypasses all authentication, automatically creates a synthetic "Demo User", and grants immediate access to the full application.
+1. **Authenticated Mode** — Users sign in via OAuth (Google or GitHub). All routes are protected and data is scoped per-household.
+2. **Demo Mode** — Enabled via `DEMO_MODE=true`. Bypasses all authentication, automatically creates a synthetic "Demo User" and "Demo Household", and grants immediate access to the full application.
 
 ---
 
@@ -36,7 +36,7 @@ src/
 ```
 Request → proxy.ts (cookie check / redirect)
        → Server Component / Action → auth() or requireAuth()
-       → Prisma (scoped by userId)
+       → Prisma (scoped by householdId)
 ```
 
 ### Defense in Depth
@@ -80,7 +80,7 @@ When `DEMO_MODE=true` (and `NEXT_PUBLIC_DEMO_MODE=true` for client components):
 
 - **Proxy**: Allows all requests through without checking for a session cookie.
 - **`auth()`**: Returns a synthetic session with a hardcoded "Demo User".
-- **Database**: The demo user is automatically upserted into the `User` table on first access, ensuring foreign key constraints on `InventoryItem.userId` are satisfied.
+- **Database**: The demo user and a demo household are automatically upserted into the database on first access, ensuring foreign key constraints on `InventoryItem.householdId` are satisfied.
 - **UI**: The "Sign Out" button in the TopNav is hidden.
 
 ### Environment Variables
@@ -116,7 +116,7 @@ NEXT_PUBLIC_DEMO_MODE=true
 
 - **XSS Protection**: Auth.js stores session tokens in `HttpOnly`, `Secure` cookies that are inaccessible to client-side JavaScript.
 - **CSRF Protection**: Auth.js includes built-in CSRF token validation on all state-changing requests (sign-in, sign-out).
-- **User Isolation**: All database queries in server actions are scoped by `userId`. A user can never read, modify, or delete another user's inventory items.
+- **Household Isolation**: All database queries in server actions are scoped by `householdId`. A user can never read, modify, or delete another household's inventory items.
 - **API Protection**: The `/api/vision` route requires authentication, preventing unauthenticated users from consuming Gemini API quota.
 
 ---
@@ -130,13 +130,21 @@ Auth.js requires the following models (managed by the Prisma Adapter):
 - `Session` — Tracks active sessions.
 - `VerificationToken` — Used for email verification flows (not currently active).
 
-The `InventoryItem` model has a `userId` foreign key that relates items to their owner:
+In addition, Larder & Leaf uses a `Household` model to group users and share inventory:
 
 ```prisma
+model Household {
+  id            String          @id @default(cuid())
+  name          String          @default("My Household")
+  inviteCode    String          @unique @default(cuid())
+  users         User[]
+  inventory     InventoryItem[]
+}
+
 model InventoryItem {
-  userId  String
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  householdId   String
+  household     Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
 }
 ```
 
-Cascade delete ensures that when a user is removed, all their inventory items are cleaned up automatically.
+Cascade delete ensures that when a household is removed, all its inventory items are cleaned up automatically.

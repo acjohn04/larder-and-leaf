@@ -13,10 +13,10 @@ URL search params (?q=...&category=...)
         │
         ▼
    Server Component
-   ├── getInventory()      →  Prisma query (user-scoped via requireAuth(), ordered by addedAt desc)
-  ├── getDictionary()     →  i18n strings
-  ├── Search filter       →  Client-side name/category substring match (reads ?q)
-  └── Category filter     →  Exact match on category field (reads ?category)
+   ├── getInventory()      →  Prisma query (household-scoped via requireAuth(), ordered by addedAt desc)
+   ├── getDictionary()     →  i18n strings
+   ├── Search filter       →  Client-side name/category substring match (reads ?q)
+   └── Category filter     →  Exact match on category field (reads ?category)
         │
         ▼
   Rendered HTML (stat cards + item grid)

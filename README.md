@@ -7,6 +7,7 @@ A premium grocery inventory management application powered by AI. Scan receipts,
 - **📋 Inventory Dashboard** — View, search, and filter your pantry items at a glance with real-time stats for expiring and low-stock items.
 - **📸 Intake Scanner** — Upload photos of receipts or produce and let Gemini Vision identify items automatically with confidence scoring.
 - **🍽️ Menu Generator** — Generate AI-powered meal combo suggestions based on your current inventory.
+- **⚙️ Household Settings** — Invite family members with shareable codes to collaborate on a shared pantry inventory.
 - **➕ Manual Entry** — Add items directly via a modal form with category selection.
 - **🌍 Internationalization** — Dictionary-based i18n system ready for multi-language expansion (currently English).
 
@@ -113,20 +114,26 @@ larder-and-leaf/
 │   │   │   ├── layout.tsx     # Minimal layout for authentication
 │   │   │   └── login/
 │   │   │       └── page.tsx   # Login page
+│   │   ├── (dashboard)/
+│   │   │   ├── generator/
+│   │   │   │   └── page.tsx   # AI meal generator page
+│   │   │   ├── intake/
+│   │   │   │   └── page.tsx   # Receipt/photo scanner page
+│   │   │   ├── settings/
+│   │   │   │   ├── page.tsx   # Settings page (household details)
+│   │   │   │   └── SettingsClient.tsx # Client interactivity (join/reset)
+│   │   │   ├── layout.tsx     # Dashboard layout (sidebar, nav)
+│   │   │   └── page.tsx       # Dashboard / inventory overview
 │   │   ├── actions/
+│   │   │   ├── household.ts   # Server actions for household management
 │   │   │   └── inventory.ts   # Server actions (CRUD + meal generation)
 │   │   ├── api/
 │   │   │   ├── auth/          # NextAuth API endpoints
 │   │   │   │   └── [...nextauth]/route.ts
 │   │   │   └── vision/
 │   │   │       └── route.ts   # POST endpoint for image analysis
-│   │   ├── generator/
-│   │   │   └── page.tsx       # AI meal generator page
-│   │   ├── intake/
-│   │   │   └── page.tsx       # Receipt/photo scanner page
 │   │   ├── globals.css        # Tailwind theme + custom utilities
-│   │   ├── layout.tsx         # Root layout (nav, sidebar, providers)
-│   │   └── page.tsx           # Dashboard / inventory overview
+│   │   └── layout.tsx         # Root layout (providers)
 │   ├── components/
 │   │   ├── AddItemModal.tsx   # Manual item entry form
 │   │   ├── AuthSessionProvider.tsx # NextAuth session context provider
@@ -155,7 +162,9 @@ larder-and-leaf/
 │   ├── design.md              # Design system specification
 │   ├── dashboard.md           # Dashboard page docs
 │   ├── intake.md              # Intake Scanner page docs
-│   └── generator.md           # Menu Generator page docs
+│   ├── generator.md           # Menu Generator page docs
+│   ├── settings.md            # Household Settings page docs
+│   └── auth.md                # Authentication & Authorization docs
 └── package.json
 ```
 
@@ -178,6 +187,7 @@ Page-level documentation lives in the [`docs/`](docs/) directory:
 - [Dashboard](docs/dashboard.md) — Inventory overview, search, filters, and stat cards
 - [Intake Scanner](docs/intake.md) — Image upload, Gemini Vision integration, and item saving
 - [Menu Generator](docs/generator.md) — AI meal suggestion generation flow
+- [Household Settings](docs/settings.md) — Household collaboration, invite codes, and member management
 - [Authentication](docs/auth.md) — Authentication system
 
 ## License

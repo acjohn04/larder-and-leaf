@@ -2,6 +2,7 @@
 
 import { useDictionary } from './DictionaryProvider'
 import Image from 'next/image'
+import Link from 'next/link'
 import { signOut, useSession } from 'next-auth/react'
 
 const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
@@ -45,6 +46,15 @@ export default function TopNav() {
                                 </span>
                             </div>
                         )}
+
+                        {/* Settings button */}
+                        <Link 
+                            href="/settings"
+                            className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-ghost shadow-sm"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">settings</span>
+                            Settings
+                        </Link>
 
                         {/* Sign out button */}
                         <button 

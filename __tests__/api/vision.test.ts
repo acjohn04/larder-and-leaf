@@ -12,6 +12,11 @@ vi.mock('@/lib/gemini', () => ({
     },
 }))
 
+vi.mock('@/lib/auth', () => ({
+    requireAuth: vi.fn().mockResolvedValue('mock-household-id'),
+    auth: vi.fn().mockResolvedValue({ user: { id: 'mock-user-id' } }),
+}))
+
 import { POST } from '@/app/api/vision/route'
 
 // --- Helpers ---
@@ -52,7 +57,7 @@ describe('POST /api/vision', () => {
             const body = await res.json()
 
             expect(res.status).toBe(400)
-            expect(body.error).toBe('No image provided')
+            expect(body.error).toBe('No file provided')
         })
 
         it('returns 413 when file exceeds 10 MB', async () => {
@@ -75,7 +80,7 @@ describe('POST /api/vision', () => {
         })
 
         it('returns 415 for an invalid MIME type', async () => {
-            const file = createMockFile('x', 'doc.pdf', 'application/pdf')
+            const file = createMockFile('x', 'doc.docx', 'application/msword')
             const req = createRequest(file)
             const res = await POST(req)
             const body = await res.json()
@@ -151,7 +156,7 @@ describe('POST /api/vision', () => {
             const body = await res.json()
 
             expect(res.status).toBe(500)
-            expect(body.error).toBe('Failed to process image. Please try again.')
+            expect(body.error).toBe('Failed to process file. Please try again.')
             // Must NOT leak the internal error message
             expect(body.error).not.toContain('API key')
         })
@@ -167,7 +172,7 @@ describe('POST /api/vision', () => {
             const body = await res.json()
 
             expect(res.status).toBe(500)
-            expect(body.error).toBe('Failed to process image. Please try again.')
+            expect(body.error).toBe('Failed to process file. Please try again.')
         })
     })
 
