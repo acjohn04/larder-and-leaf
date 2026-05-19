@@ -23,13 +23,14 @@ export default function TopNav() {
                         <span className="text-xl font-bold tracking-tight text-primary font-display">{dict.topNav.brand}</span>
                     </div>
                 </div>
-                
+
                 {!isDemoMode && (
                     <div className="flex items-center gap-3">
                         {/* User info pill */}
                         {user && (
                             <div className="flex items-center gap-2.5 bg-surface-container-low px-3 py-1.5 rounded-full border border-ghost shadow-sm">
                                 {hasAvatar ? (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
                                     <img
                                         src={user.image!}
                                         alt={user.name ?? 'User avatar'}
@@ -48,7 +49,7 @@ export default function TopNav() {
                         )}
 
                         {/* Settings button */}
-                        <Link 
+                        <Link
                             href="/settings"
                             className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-ghost shadow-sm"
                         >
@@ -57,7 +58,7 @@ export default function TopNav() {
                         </Link>
 
                         {/* Sign out button */}
-                        <button 
+                        <button
                             onClick={() => signOut()}
                             className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-ghost shadow-sm"
                         >

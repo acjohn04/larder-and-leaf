@@ -6,7 +6,7 @@ This design system is a bespoke framework crafted for a premium grocery inventor
 
 ## 1. Overview & Creative North Star
 
-**Creative North Star: "The Digital Market Stand"**
+**Creative North Star: "The Intelligent Pantry"**
 The goal is to evoke the feeling of a high-end, organized larder. We break the "template" look by using **intentional asymmetry** and **tonal layering**. Instead of boxing items into a grid, we use expansive white space and overlapping elements to create a sense of breathability and premium quality. The interface should feel tactile—like touching matte cardstock or frosted glass—rather than a flat digital screen.
 
 ---

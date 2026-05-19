@@ -114,6 +114,7 @@ export default function SettingsClient({ householdName, inviteCode: initialInvit
                         {members.map((m, i) => (
                             <div key={i} className="flex items-center gap-3">
                                 {m.image ? (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
                                     <img src={m.image} alt={m.name || 'User'} className="w-8 h-8 rounded-full object-cover" />
                                 ) : (
                                     <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold">
