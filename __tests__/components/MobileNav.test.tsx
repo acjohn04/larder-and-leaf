@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { renderWithProviders, screen } from '../test-utils'
+import { renderWithProviders, screen, userEvent } from '../test-utils'
 import MobileNav from '@/components/MobileNav'
 import dict from '@/dictionaries/en.json'
 
@@ -13,6 +13,11 @@ vi.mock('next/link', () => ({
   default: ({ children, href, ...props }: { children: React.ReactNode; href: string; [key: string]: unknown }) => (
     <a href={href} {...props}>{children}</a>
   ),
+}))
+
+// Mock the server action used by AddItemModal
+vi.mock('@/app/actions/inventory', () => ({
+  addInventoryItems: vi.fn().mockResolvedValue(undefined),
 }))
 
 describe('MobileNav', () => {
@@ -55,5 +60,27 @@ describe('MobileNav', () => {
     renderWithProviders(<MobileNav />)
 
     expect(screen.getByRole('navigation')).toBeInTheDocument()
+  })
+
+  it('renders the add item FAB button', () => {
+    renderWithProviders(<MobileNav />)
+
+    const fab = screen.getByLabelText(dict.sidebar.addItem)
+    expect(fab).toBeInTheDocument()
+    expect(fab.tagName).toBe('BUTTON')
+  })
+
+  it('opens AddItemModal when FAB is clicked', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<MobileNav />)
+
+    // Modal should not be visible initially
+    expect(screen.queryByText(dict.addItemModal.title)).not.toBeInTheDocument()
+
+    // Click the FAB
+    await user.click(screen.getByLabelText(dict.sidebar.addItem))
+
+    // Modal should now be visible
+    expect(screen.getByText(dict.addItemModal.title)).toBeInTheDocument()
   })
 })

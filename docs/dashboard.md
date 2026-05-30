@@ -19,7 +19,7 @@ URL search params (?q=...&category=...)
   └── Category filter     →  Exact match on category field (reads ?category)
         │
         ▼
-  Rendered HTML (stat cards + item grid)
+  Rendered HTML (stat cards + DashboardGrid client component)
 ```
 
 ## Sections
@@ -51,13 +51,21 @@ See [`src/components/CategoryFilter.tsx`](../src/components/CategoryFilter.tsx).
 
 ### Inventory Grid
 
+Rendered by the `<DashboardGrid />` client component. This receives the filtered inventory items and a serialized `now` timestamp from the server.
+
 A responsive card grid (`sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`). Each card displays:
 
-- **Item name** with an "Expiring" badge if within the 3-day window.
+- **Item name** with an "Expiring" badge if within the 3-day window **and not already expired**.
 - **Category** label.
 - **Quantity & unit** — quantity text turns red if the item is low stock (`quantity <= minThreshold`).
-- **AI confidence score** — shown as a percentage with a robot icon; only visible if the item was added via the scanner. Fades in on hover.
-- **Delete button** — triggers a confirmation modal before removing the item via the `deleteInventoryItem` server action.
+- **Delete button** — triggers a confirmation modal before removing the item via the `deleteInventoryItem` server action. Uses `stopPropagation` to prevent opening the edit modal.
+- **Click-to-edit** — clicking anywhere on the card (except the delete button) opens the `EditItemModal` pre-filled with the item's current data.
+
+See [`src/components/DashboardGrid.tsx`](../src/components/DashboardGrid.tsx).
+
+#### Expiring Badge Logic
+
+Both the stat card count and the per-card badge use the same window: `expiresAt` must be in `[now, now + 3 days]`. Items already past their expiration date do **not** receive the badge or count toward "Expiring Soon".
 
 ### Empty State
 
@@ -65,8 +73,10 @@ When no items match the current filters, a centered empty-state panel is shown w
 
 ## Key Components Used
 
-| Component        | Role                                                                            |
-| ---------------- | ------------------------------------------------------------------------------- |
-| `CategoryFilter` | Combined search input and category toggle buttons; manages URL params           |
-| `DeleteButton`   | Triggers `DeleteConfirmModal` → calls `deleteInventoryItem` server action       |
-| `TopNav`         | Global navigation bar with brand logo and Sign Out button (hidden in demo mode) |
+| Component        | Role                                                                                |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| `DashboardGrid`  | Client component rendering the item card grid with click-to-edit and delete support |
+| `EditItemModal`  | Modal for editing an existing item; calls `updateInventoryItem` server action       |
+| `CategoryFilter` | Combined search input and category toggle buttons; manages URL params               |
+| `DeleteButton`   | Triggers `DeleteConfirmModal` → calls `deleteInventoryItem` server action           |
+| `TopNav`         | Global navigation bar with brand logo and Sign Out button (hidden in demo mode)     |

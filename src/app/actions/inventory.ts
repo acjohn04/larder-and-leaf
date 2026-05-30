@@ -31,6 +31,16 @@ const DeleteItemSchema = z.object({
     id: z.string().min(1).max(100),
 })
 
+const UpdateItemSchema = z.object({
+    id: z.string().min(1).max(100),
+    name: z.string().min(1).max(200),
+    category: z.string().min(1).max(100),
+    quantity: z.number().positive().max(99999),
+    unit: z.string().max(50).optional().default('units'),
+    minThreshold: z.number().min(0).max(99999).optional().default(0),
+    expiresAt: z.coerce.date().nullable().optional(),
+})
+
 // --- Actions ---
 
 export async function generateMealIdeas() {
@@ -205,3 +215,31 @@ export async function deleteInventoryItem(rawId: string) {
     revalidatePath('/');
 }
 
+export async function updateInventoryItem(rawData: { id: string, name: string, category: string, quantity: number, unit?: string, minThreshold?: number, expiresAt?: Date | null }) {
+    const userId = await requireAuth();
+
+    const { id, ...data } = UpdateItemSchema.parse(rawData);
+
+    // Ensure the item belongs to the authenticated user before updating.
+    const existing = await prisma.inventoryItem.findFirst({
+        where: { id, userId }
+    });
+
+    if (!existing) {
+        throw new Error('Item not found');
+    }
+
+    await prisma.inventoryItem.update({
+        where: { id },
+        data: {
+            name: data.name,
+            category: data.category,
+            quantity: data.quantity,
+            unit: data.unit,
+            minThreshold: data.minThreshold,
+            expiresAt: data.expiresAt,
+        }
+    });
+
+    revalidatePath('/');
+}
