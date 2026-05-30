@@ -5,7 +5,7 @@ import dict from '@/dictionaries/en.json'
 
 // Mock next-auth/react to avoid SessionProvider requirement
 vi.mock('next-auth/react', () => ({
-  useSession: () => ({ data: null, status: 'unauthenticated' }),
+  useSession: () => ({ data: { user: { name: 'Test User', email: 'test@example.com' } } }),
   signOut: vi.fn(),
 }))
 
@@ -16,7 +16,6 @@ vi.mock('next/image', () => ({
     return <img {...props} />
   },
 }))
-
 describe('TopNav', () => {
   it('renders the brand name', () => {
     renderWithProviders(<TopNav />)

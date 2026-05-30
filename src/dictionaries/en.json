@@ -113,6 +113,11 @@
     "cooking": "Updating Inventory...",
     "perPerson": "per person"
   },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "We couldn't find the page you're looking for. It might have been moved or doesn't exist.",
+    "returnToDashboard": "Return to Dashboard"
+  },
   "errors": {
     "emptyPantry": "Your pantry is empty. Add some items first!",
     "generateFailed": "Failed to generate ideas. Make sure you have items in your inventory!",

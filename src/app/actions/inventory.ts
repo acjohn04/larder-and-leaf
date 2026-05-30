@@ -101,12 +101,12 @@ Focus on "meal combos" (e.g. Protein + Side + Vegetable).`;
 }
 
 export async function consumeMeal(ingredients: { name: string, quantity: number }[]) {
-    const userId = await requireAuth();
+    const householdId = await requireAuth();
 
     await prisma.$transaction(async (tx) => {
         for (const ingredient of ingredients) {
             const item = await tx.inventoryItem.findFirst({
-                where: { name: ingredient.name, userId }
+                where: { name: ingredient.name, householdId }
             });
 
             if (item) {
@@ -136,14 +136,22 @@ export async function getInventory() {
     const session = await auth();
     if (!session?.user?.id) return [];
     
+    // We also need to get the user's householdId for read
+    const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { householdId: true }
+    });
+    
+    if (!user?.householdId) return [];
+    
     return prisma.inventoryItem.findMany({
-        where: { userId: session.user.id },
+        where: { householdId: user.householdId },
         orderBy: { addedAt: 'desc' }
     });
 }
 
 export async function addInventoryItems(rawItems: { name: string, category: string, quantity: number, unit?: string, confidenceScore: number, expiresAt?: Date, minThreshold?: number }[]) {
-    const userId = await requireAuth();
+    const householdId = await requireAuth();
 
     const items = AddItemsSchema.parse(rawItems);
 
@@ -169,7 +177,7 @@ export async function addInventoryItems(rawItems: { name: string, category: stri
     await prisma.$transaction(async (tx) => {
         for (const item of aggregatedItems) {
             const existingItem = await tx.inventoryItem.findFirst({
-                where: { name: item.name, userId }
+                where: { name: item.name, householdId }
             });
 
             if (existingItem) {
@@ -191,7 +199,7 @@ export async function addInventoryItems(rawItems: { name: string, category: stri
                         confidenceScore: item.confidenceScore,
                         expiresAt: item.expiresAt,
                         minThreshold: item.minThreshold,
-                        userId: userId,
+                        householdId: householdId,
                     }
                 });
             }
@@ -203,14 +211,14 @@ export async function addInventoryItems(rawItems: { name: string, category: stri
 }
 
 export async function deleteInventoryItem(rawId: string) {
-    const userId = await requireAuth();
+    const householdId = await requireAuth();
 
 
     const { id } = DeleteItemSchema.parse({ id: rawId });
 
-    // Ensure they can only delete their own item
+    // Ensure they can only delete an item from their household
     await prisma.inventoryItem.deleteMany({
-        where: { id, userId }
+        where: { id, householdId }
     });
     revalidatePath('/');
 }

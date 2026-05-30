@@ -16,6 +16,9 @@ COPY . .
 ENV DATABASE_URL="file:./dummy.db"
 # Set dummy API key to pass Next.js build-time environment variable validation
 ENV GEMINI_API_KEY="dummy_key_for_build"
+# NEXT_PUBLIC_ vars are inlined at build time — accept the value as a build arg
+ARG NEXT_PUBLIC_DEMO_MODE=false
+ENV NEXT_PUBLIC_DEMO_MODE=$NEXT_PUBLIC_DEMO_MODE
 RUN npx prisma generate
 RUN npm run build
 

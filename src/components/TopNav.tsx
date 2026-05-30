@@ -2,6 +2,7 @@
 
 import { useDictionary } from './DictionaryProvider'
 import Image from 'next/image'
+import Link from 'next/link'
 import { signOut, useSession } from 'next-auth/react'
 
 const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
@@ -22,13 +23,14 @@ export default function TopNav() {
                         <span className="text-xl font-bold tracking-tight text-primary font-display hidden sm:inline">{dict.topNav.brand}</span>
                     </div>
                 </div>
-                
+
                 {!isDemoMode && (
                     <div className="flex items-center gap-3">
                         {/* User info pill */}
                         {user && (
                             <div className="flex items-center gap-2.5 bg-surface-container-low px-3 py-1.5 rounded-full border border-ghost shadow-sm">
                                 {hasAvatar ? (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
                                     <img
                                         src={user.image!}
                                         alt={user.name ?? 'User avatar'}
@@ -46,8 +48,17 @@ export default function TopNav() {
                             </div>
                         )}
 
+                        {/* Settings button */}
+                        <Link
+                            href="/settings"
+                            className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-ghost shadow-sm"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">settings</span>
+                            Settings
+                        </Link>
+
                         {/* Sign out button */}
-                        <button 
+                        <button
                             onClick={() => signOut()}
                             className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-ghost shadow-sm"
                         >

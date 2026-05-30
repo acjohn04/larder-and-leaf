@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { getInventory } from './actions/inventory';
-import CategoryFilter from '../components/CategoryFilter';
-import DashboardGrid from '../components/DashboardGrid';
+import { getInventory } from '@/app/actions/inventory';
+import CategoryFilter from '@/components/CategoryFilter';
+import DashboardGrid from '@/components/DashboardGrid';
 import { getDictionary } from '@/dictionaries';
 import { InventoryItem } from '@prisma/client';
 
