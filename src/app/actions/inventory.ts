@@ -224,13 +224,13 @@ export async function deleteInventoryItem(rawId: string) {
 }
 
 export async function updateInventoryItem(rawData: { id: string, name: string, category: string, quantity: number, unit?: string, minThreshold?: number, expiresAt?: Date | null }) {
-    const userId = await requireAuth();
+    const householdId = await requireAuth();
 
     const { id, ...data } = UpdateItemSchema.parse(rawData);
 
-    // Ensure the item belongs to the authenticated user before updating.
+    // Ensure the item belongs to the authenticated user's household before updating.
     const existing = await prisma.inventoryItem.findFirst({
-        where: { id, userId }
+        where: { id, householdId }
     });
 
     if (!existing) {
