@@ -20,7 +20,7 @@ export default function TopNav() {
                 <div className="flex items-center gap-8">
                     <div className="flex items-center gap-3">
                         <Image src="/logo.png" alt="Logo" width={28} height={28} className="rounded-md" />
-                        <span className="text-xl font-bold tracking-tight text-primary font-display">{dict.topNav.brand}</span>
+                        <span className="text-xl font-bold tracking-tight text-primary font-display hidden sm:inline">{dict.topNav.brand}</span>
                     </div>
                 </div>
 
@@ -63,7 +63,7 @@ export default function TopNav() {
                             className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-ghost shadow-sm"
                         >
                             <span className="material-symbols-outlined text-[18px]">logout</span>
-                            Sign Out
+                            <span className="hidden sm:inline">Sign Out</span>
                         </button>
                     </div>
                 )}

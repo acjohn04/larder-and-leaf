@@ -47,6 +47,17 @@
     "submit": "Add to Inventory",
     "errorMessage": "Failed to add item. Please try again."
   },
+  "editItemModal": {
+    "title": "Edit Item",
+    "labelName": "Item Name",
+    "labelQuantity": "Quantity",
+    "labelUnit": "Unit",
+    "labelCategory": "Category",
+    "labelExpiry": "Expiration Date",
+    "labelMinThreshold": "Min Threshold (Low Stock Alert)",
+    "submit": "Save Changes",
+    "errorMessage": "Failed to update item. Please try again."
+  },
   "deleteModal": {
     "title": "Remove Item?",
     "description": "Are you sure you want to remove \"{itemName}\" from your inventory? This action cannot be undone.",
