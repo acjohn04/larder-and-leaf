@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { genAI } from "@/lib/gemini";
-import { requireAuth } from "@/lib/auth";
+import { auth, requireAuth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 // --- Upload constraints ---
 // These guard against oversized payloads and non-supported file types
@@ -19,6 +20,9 @@ export async function POST(req: Request) {
   try {
     // Verify the user is authenticated before processing
     await requireAuth();
+    const session = await auth();
+    const user = session?.user?.id ? await prisma.user.findUnique({ where: { id: session.user.id } }) : null;
+    
     const formData = await req.formData();
     const file = formData.get("image") as File;
     if (!file) {
@@ -129,6 +133,11 @@ For each item, provide a JSON object with:
 Only return items you are >80% sure about. 
 Return an array of these JSON objects.`;
 
+    let finalPrompt = prompt;
+    if (user?.intakePrompt) {
+        finalPrompt += `\n\nUser Custom Instructions:\n${user.intakePrompt}`;
+    }
+
     // Retry loop with linear backoff (1s, 2s, 3s) to handle transient
     // Gemini API failures (rate limits, network blips). On the final
     // attempt the error is re-thrown to the outer catch block.
@@ -139,7 +148,7 @@ Return an array of these JSON objects.`;
         console.log(`Processing file upload. Name: ${file.name}, Type: ${file.type}, Size: ${file.size}`);
         
         result = await model.generateContent([
-          prompt,
+          finalPrompt,
           {
             inlineData: {
               data: base64Content,

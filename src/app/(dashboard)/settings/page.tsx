@@ -1,17 +1,25 @@
 import { getHouseholdDetails } from '@/app/actions/household'
 import SettingsClient from './SettingsClient'
 import { redirect } from 'next/navigation'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 export const metadata = {
     title: 'Settings - Larder & Leaf',
 }
 
 export default async function SettingsPage() {
-    const household = await getHouseholdDetails()
+    const session = await auth()
+    if (!session?.user?.id) {
+        redirect('/')
+    }
 
-    if (!household) {
-        // This shouldn't happen unless they somehow bypass requireAuth on the layout or if the db is corrupt.
-        // It's safer to redirect to home where requireAuth usually handles creation.
+    const [household, user] = await Promise.all([
+        getHouseholdDetails(),
+        prisma.user.findUnique({ where: { id: session.user.id } })
+    ])
+
+    if (!household || !user) {
         redirect('/')
     }
 
@@ -20,6 +28,8 @@ export default async function SettingsPage() {
             householdName={household.name} 
             inviteCode={household.inviteCode} 
             members={household.users} 
+            initialIntakePrompt={user.intakePrompt || ''}
+            initialMealGeneratorPrompt={user.mealGeneratorPrompt || ''}
         />
     )
 }

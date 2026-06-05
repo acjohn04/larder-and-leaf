@@ -31,6 +31,8 @@
     "filterBakery": "Bakery",
     "filterFrozen": "Frozen",
     "expiring": "Expiring",
+    "expired": "Expired",
+    "expiredItems": "Expired Items",
     "emptyTitle": "Your pantry is empty",
     "emptyDescription": "Scan your first grocery receipt or upload a photo of your fresh produce to begin.",
     "startScanning": "Start Scanning",
@@ -123,6 +125,31 @@
     "generateFailed": "Failed to generate ideas. Make sure you have items in your inventory!",
     "analysisFailed": "Failed to analyze file",
     "saveFailed": "Failed to save items to inventory.",
-    "consumeFailed": "Failed to update inventory. Please try again."
+    "consumeFailed": "Failed to update inventory. Please try again.",
+    "savePromptsFailed": "Failed to save prompts"
+  },
+  "settings": {
+    "title": "Settings",
+    "share": "Share this code with family members to invite them to your household. They will have full access to your inventory.",
+    "inviteCode": "Invite Code",
+    "copyCode": "Copy Code",
+    "reset": "Reset",
+    "join": "Join",
+    "joinHousehold": "Join a Household",
+    "enterInviteCode": "Enter invite code",
+    "joinWarning": "Have an invite code from someone else? Enter it below to join their household. <strong> Warning: This will disconnect you from your current household.</strong>",
+    "personalization": "Personalization",
+    "personalizationDescription": "Customize how the AI behaves by adding your own instructions. These will be appended to the AI's base prompts.",
+    "intakePrompt": "Intake Custom Prompt",
+    "intakePromptPlaceholder": "e.g. Always assume organic if not specified...",
+    "mealGeneratorPrompt": "Meal Generation Custom Prompt",
+    "mealGeneratorPromptPlaceholder": "e.g. Prefer vegetarian meals...",
+    "savePrompts": "Save Prompts",
+    "saving": "Saving...",
+    "promptsSaved": "Prompts saved successfully!"
+  },
+  "demoBanner": {
+    "title": "Demo Mode",
+    "description": "Mock users and Gemini API calls"
   }
 }

@@ -51,12 +51,15 @@ describe('DashboardGrid', () => {
     expect(screen.getByText(dict.dashboard.expiring)).toBeInTheDocument()
   })
 
-  it('does NOT show "Expiring" badge for already-expired items', () => {
+  it('shows "Expired" badge for already-expired items (not "Expiring")', () => {
     const expiredItem = makeItem({
       expiresAt: new Date('2026-05-28T12:00:00Z'), // 2 days ago
     })
     renderWithProviders(<DashboardGrid items={[expiredItem]} now={now.toISOString()} />)
 
+    // Should show "Expired" badge
+    expect(screen.getByText(dict.dashboard.expired)).toBeInTheDocument()
+    // Should NOT show "Expiring" badge
     expect(screen.queryByText(dict.dashboard.expiring)).not.toBeInTheDocument()
   })
 

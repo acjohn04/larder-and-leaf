@@ -8,16 +8,18 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(cuid())
-  name          String?
-  email         String?         @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
+  id                  String          @id @default(cuid())
+  name                String?
+  email               String?         @unique
+  emailVerified       DateTime?
+  image               String?
+  intakePrompt        String?
+  mealGeneratorPrompt String?
+  accounts            Account[]
+  sessions            Session[]
   
-  householdId   String?
-  household     Household?      @relation(fields: [householdId], references: [id])
+  householdId         String?
+  household           Household?      @relation(fields: [householdId], references: [id])
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
