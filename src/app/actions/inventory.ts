@@ -51,6 +51,9 @@ export async function generateMealIdeas() {
         return { error: dict.errors.emptyPantry };
     }
 
+    const session = await auth();
+    const user = session?.user?.id ? await prisma.user.findUnique({ where: { id: session.user.id } }) : null;
+
     const inventoryList = inventory.map((item: InventoryItem) => `${item.name} (${item.quantity} ${item.unit})`).join(', ');
 
     // Use Gemini's typed responseSchema to guarantee the output
@@ -86,7 +89,7 @@ export async function generateMealIdeas() {
         }
     });
 
-    const prompt = `Given the following grocery inventory: ${inventoryList}
+    let prompt = `Given the following grocery inventory: ${inventoryList}
 
 Suggest 3 balanced meal combos. For each combo:
 1. Provide an appetizing name and brief description.
@@ -95,6 +98,10 @@ Suggest 3 balanced meal combos. For each combo:
 4. Assume basic staples (oil, salt, pepper) are available.
 
 Focus on "meal combos" (e.g. Protein + Side + Vegetable).`;
+
+    if (user?.mealGeneratorPrompt) {
+        prompt += `\n\nUser Custom Instructions:\n${user.mealGeneratorPrompt}`;
+    }
 
     const result = await model.generateContent(prompt);
     return JSON.parse(result.response.text());

@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import AuthSessionProvider from '@/components/AuthSessionProvider';
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
+import DemoBanner from '@/components/DemoBanner';
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -25,6 +26,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+
   return (
     <html
       lang="en"
@@ -36,6 +39,7 @@ export default function RootLayout({
         <style>{`.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }`}</style>
       </head>
       <body className="min-h-full flex flex-col font-body bg-surface text-on-surface">
+        {isDemoMode && <DemoBanner />}
         <AuthSessionProvider>
           <ServiceWorkerRegister />
           {children}

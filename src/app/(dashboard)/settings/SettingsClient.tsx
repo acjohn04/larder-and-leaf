@@ -2,19 +2,28 @@
 
 import { useState } from 'react'
 import { joinHousehold, regenerateInviteCode } from '@/app/actions/household'
+import { updateUserPrompts } from '@/app/actions/user'
+import { useDictionary } from '@/components/DictionaryProvider'
 
 interface SettingsClientProps {
     householdName: string;
     inviteCode: string;
     members: { name: string | null; email: string | null; image: string | null }[];
+    initialIntakePrompt: string;
+    initialMealGeneratorPrompt: string;
 }
 
-export default function SettingsClient({ householdName, inviteCode: initialInviteCode, members }: SettingsClientProps) {
+export default function SettingsClient({ householdName, inviteCode: initialInviteCode, members, initialIntakePrompt, initialMealGeneratorPrompt }: SettingsClientProps) {
     const [inviteCode, setInviteCode] = useState(initialInviteCode)
     const [joinCode, setJoinCode] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
+
+    const [intakePrompt, setIntakePrompt] = useState(initialIntakePrompt)
+    const [mealGeneratorPrompt, setMealGeneratorPrompt] = useState(initialMealGeneratorPrompt)
+    const [isSavingPrompts, setIsSavingPrompts] = useState(false)
+    const dict = useDictionary()
 
     const handleCopy = async () => {
         try {
@@ -62,9 +71,24 @@ export default function SettingsClient({ householdName, inviteCode: initialInvit
         }
     }
 
+    const handleSavePrompts = async () => {
+        setIsSavingPrompts(true)
+        setError(null)
+        setSuccess(null)
+        try {
+            await updateUserPrompts({ intakePrompt, mealGeneratorPrompt })
+            setSuccess(dict.settings.promptsSaved)
+            setTimeout(() => setSuccess(null), 3000)
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : dict.errors.savePromptsFailed)
+        } finally {
+            setIsSavingPrompts(false)
+        }
+    }
+
     return (
         <div className="max-w-2xl mx-auto space-y-8">
-            <h1 className="text-3xl font-bold tracking-tight text-primary font-display">Settings</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-primary font-display">{dict.settings.title}</h1>
 
             {error && (
                 <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-200">
@@ -82,28 +106,28 @@ export default function SettingsClient({ householdName, inviteCode: initialInvit
                 <div>
                     <h2 className="text-xl font-semibold text-primary">{householdName}</h2>
                     <p className="text-sm text-on-surface-variant mt-1">
-                        Share this code with family members to invite them to your household. They will have full access to your inventory.
+                        {dict.settings.share}
                     </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center bg-surface p-4 rounded-2xl border border-ghost">
                     <div className="flex-1">
-                        <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Invite Code</p>
+                        <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">{dict.settings.inviteCode}</p>
                         <code className="text-lg font-mono font-bold text-primary select-all">{inviteCode}</code>
                     </div>
                     <div className="flex gap-2 w-full sm:w-auto">
                         <button 
                             onClick={handleCopy}
-                            className="flex-1 sm:flex-none px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors"
+                            className="flex-1 sm:flex-none px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors cursor-pointer"
                         >
-                            Copy Code
+                            {dict.settings.copyCode}
                         </button>
                         <button 
                             onClick={handleRegenerate}
                             disabled={loading}
-                            className="px-4 py-2 bg-surface-container-high text-on-surface rounded-xl text-sm font-semibold hover:bg-surface-container-highest transition-colors disabled:opacity-50"
+                            className="px-4 py-2 bg-surface-container-high text-on-surface rounded-xl text-sm font-semibold hover:bg-surface-container-highest transition-colors disabled:opacity-50 cursor-pointer"
                         >
-                            Reset
+                            {dict.settings.reset}
                         </button>
                     </div>
                 </div>
@@ -133,17 +157,16 @@ export default function SettingsClient({ householdName, inviteCode: initialInvit
 
             <div className="bg-surface-container-low border border-ghost rounded-3xl p-6 shadow-sm space-y-4">
                 <div>
-                    <h2 className="text-xl font-semibold text-primary">Join a Household</h2>
+                    <h2 className="text-xl font-semibold text-primary">{dict.settings.joinHousehold}</h2>
                     <p className="text-sm text-on-surface-variant mt-1">
-                        Have an invite code from someone else? Enter it below to join their household. 
-                        <strong> Warning: This will disconnect you from your current household.</strong>
+                        {dict.settings.joinWarning}
                     </p>
                 </div>
 
                 <form onSubmit={handleJoin} className="flex gap-3">
                     <input 
                         type="text" 
-                        placeholder="Enter invite code" 
+                        placeholder={dict.settings.enterInviteCode} 
                         value={joinCode}
                         onChange={(e) => setJoinCode(e.target.value)}
                         className="flex-1 px-4 py-2 rounded-xl border border-ghost bg-surface focus:outline-none focus:ring-2 focus:ring-primary/50 text-on-surface"
@@ -152,11 +175,56 @@ export default function SettingsClient({ householdName, inviteCode: initialInvit
                     <button 
                         type="submit"
                         disabled={loading || !joinCode.trim()}
-                        className="px-6 py-2 bg-primary text-on-primary rounded-xl font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
+                        className="px-6 py-2 bg-primary text-on-primary rounded-xl font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
                     >
-                        Join
+                        {dict.settings.join}
                     </button>
                 </form>
+            </div>
+
+            <div className="bg-surface-container-low border border-ghost rounded-3xl p-6 shadow-sm space-y-6">
+                <div>
+                    <h2 className="text-xl font-semibold text-primary">{dict.settings.personalization}</h2>
+                    <p className="text-sm text-on-surface-variant mt-1">
+                        {dict.settings.personalizationDescription}
+                    </p>
+                </div>
+
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-semibold text-on-surface-variant mb-2">
+                            {dict.settings.intakePrompt}
+                        </label>
+                        <textarea
+                            value={intakePrompt}
+                            onChange={(e) => setIntakePrompt(e.target.value)}
+                            placeholder={dict.settings.intakePromptPlaceholder}
+                            className="w-full px-4 py-3 rounded-xl border border-ghost bg-surface focus:outline-none focus:ring-2 focus:ring-primary/50 text-on-surface resize-y min-h-[100px]"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-semibold text-on-surface-variant mb-2">
+                            {dict.settings.mealGeneratorPrompt}
+                        </label>
+                        <textarea
+                            value={mealGeneratorPrompt}
+                            onChange={(e) => setMealGeneratorPrompt(e.target.value)}
+                            placeholder={dict.settings.mealGeneratorPromptPlaceholder}
+                            className="w-full px-4 py-3 rounded-xl border border-ghost bg-surface focus:outline-none focus:ring-2 focus:ring-primary/50 text-on-surface resize-y min-h-[100px]"
+                        />
+                    </div>
+
+                    <div className="flex justify-end pt-2">
+                        <button
+                            onClick={handleSavePrompts}
+                            disabled={isSavingPrompts}
+                            className="px-6 py-2 bg-primary text-on-primary rounded-xl font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
+                        >
+                            {isSavingPrompts ? dict.settings.saving : dict.settings.savePrompts}
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     )

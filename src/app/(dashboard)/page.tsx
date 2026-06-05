@@ -3,6 +3,7 @@ import { getInventory } from '@/app/actions/inventory';
 import CategoryFilter from '@/components/CategoryFilter';
 import DashboardGrid from '@/components/DashboardGrid';
 import { getDictionary } from '@/dictionaries';
+import { isExpired, isExpiringSoon, isLowStock } from '@/lib/inventory';
 import { InventoryItem } from '@prisma/client';
 
 export default async function DashboardPage({
@@ -27,23 +28,13 @@ export default async function DashboardPage({
         ? searchFiltered.filter(item => item.category.toLowerCase() === category.toLowerCase())
         : searchFiltered;
 
-    // Compute stat card values.
-    // "Expiring soon" = items whose expiresAt falls within the next 3 days
-    // (but not already expired). "Low stock" = items at or below their
-    // user-defined minThreshold.
+    // Compute stat card values using the shared helpers from @/lib/inventory
+    // so that badge logic and counts always agree.
     const now = new Date();
-    const threeDaysFromNow = new Date();
-    threeDaysFromNow.setDate(now.getDate() + 3);
 
-    const expiringSoonCount = filteredInventory.filter(item =>
-        item.expiresAt &&
-        new Date(item.expiresAt) <= threeDaysFromNow &&
-        new Date(item.expiresAt) >= now
-    ).length;
-
-    const lowStockCount = filteredInventory.filter(item =>
-        item.minThreshold > 0 && item.quantity <= item.minThreshold
-    ).length;
+    const expiredCount = filteredInventory.filter(item => isExpired(item, now)).length;
+    const expiringSoonCount = filteredInventory.filter(item => isExpiringSoon(item, now)).length;
+    const lowStockCount = filteredInventory.filter(item => isLowStock(item)).length;
 
     return (
         <div>
@@ -64,7 +55,7 @@ export default async function DashboardPage({
             </section>
 
             {/* Quick Stats Bento Grid */}
-            <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-12">
                 <div className="bg-surface-container-low p-6 rounded-3xl flex flex-col justify-between min-h-[160px]">
                     <span className="material-symbols-outlined text-primary text-3xl">eco</span>
                     <div>
@@ -75,10 +66,17 @@ export default async function DashboardPage({
                     </div>
                 </div>
                 <div className="bg-error/10 p-6 rounded-3xl flex flex-col justify-between min-h-[160px]">
-                    <span className="material-symbols-outlined text-error text-3xl">notification_important</span>
+                    <span className="material-symbols-outlined text-error text-3xl">event_busy</span>
                     <div>
-                        <p className="text-4xl font-bold text-error">{expiringSoonCount}</p>
-                        <p className="text-sm font-medium text-error/70 uppercase tracking-widest">{dict.dashboard.expiringSoon}</p>
+                        <p className="text-4xl font-bold text-error">{expiredCount}</p>
+                        <p className="text-sm font-medium text-error/70 uppercase tracking-widest">{dict.dashboard.expiredItems}</p>
+                    </div>
+                </div>
+                <div className="bg-error/5 p-6 rounded-3xl flex flex-col justify-between min-h-[160px]">
+                    <span className="material-symbols-outlined text-error/70 text-3xl">notification_important</span>
+                    <div>
+                        <p className="text-4xl font-bold text-error/70">{expiringSoonCount}</p>
+                        <p className="text-sm font-medium text-error/50 uppercase tracking-widest">{dict.dashboard.expiringSoon}</p>
                     </div>
                 </div>
                 <div className="bg-surface-container p-6 rounded-3xl flex flex-col justify-between min-h-[160px]">

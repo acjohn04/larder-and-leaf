@@ -15,7 +15,7 @@ export default function TopNav() {
     const hasAvatar = !!user?.image
 
     return (
-        <header className="fixed top-0 w-full z-50 bg-glass border-b border-zinc-200/20">
+        <header className="sticky top-0 w-full z-50 bg-glass border-b border-zinc-200/20">
             <div className="flex justify-between items-center px-6 h-16 max-w-screen-2xl mx-auto">
                 <div className="flex items-center gap-8">
                     <div className="flex items-center gap-3">
@@ -60,7 +60,7 @@ export default function TopNav() {
                         {/* Sign out button */}
                         <button
                             onClick={() => signOut()}
-                            className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-ghost shadow-sm"
+                            className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-ghost shadow-sm cursor-pointer"
                         >
                             <span className="material-symbols-outlined text-[18px]">logout</span>
                             <span className="hidden sm:inline">Sign Out</span>
