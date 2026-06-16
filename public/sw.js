@@ -1,4 +1,4 @@
-const CACHE_NAME = 'larder-leaf-v3';
+const CACHE_NAME = 'larder-leaf-v4';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -28,6 +28,13 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Skip cross-origin requests entirely — let the browser handle them natively.
+  // The SW's own CSP would otherwise block fetches to external origins (Google
+  // Fonts, OAuth endpoints, etc.) since it runs under a 'self'-restricted context.
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
   // Use Network-First for HTML navigation requests so you always see fresh content when online
   if (event.request.mode === 'navigate') {
     event.respondWith(
@@ -59,3 +66,4 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
